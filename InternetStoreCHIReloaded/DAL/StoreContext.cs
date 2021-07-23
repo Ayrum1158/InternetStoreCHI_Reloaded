@@ -10,7 +10,6 @@ namespace DAL
 {
     public class StoreContext : DbContext
     {
-
         private readonly IOptionsMonitor<DBConfig> dbConfig;
 
         public StoreContext(IOptionsMonitor<DBConfig> dbConfig)
@@ -26,7 +25,8 @@ namespace DAL
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(dbConfig.CurrentValue.ConnectionString);
+                var connectionString = dbConfig.CurrentValue.ConnectionString;
+                optionsBuilder.UseSqlServer(connectionString);
             }
 
             //optionsBuilder.UseLazyLoadingProxies();

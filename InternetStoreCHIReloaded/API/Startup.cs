@@ -1,3 +1,4 @@
+using BLL;
 using Common.ConfigPOCOs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,9 +32,12 @@ namespace API
             //    options.Cookie.IsEssential = true;
             //});
 
-            var dbConfig = Configuration.GetSection(nameof(DBConfig));
-            services.Configure<DBConfig>(dbConfig);
+            var dbConfigSection = Configuration.GetSection(nameof(DBConfig));
+            services.Configure<DBConfig>(dbConfigSection);
 
+            var dbConfig = dbConfigSection.Get<DBConfig>();
+            services.ConfigureDBContext(dbConfig);
+            services.ConfigureRepositories();
 
             services.AddControllers();
         }
