@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DAL.Entities;
+using DAL.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +14,27 @@ namespace API.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
+        private readonly IGenericRepository<Category> categoryRepository;
+
+        public CategoryController(IGenericRepository<Category> categoryRepository)
+        {
+            this.categoryRepository = categoryRepository;
+        }
+
         // GET: api/<CategoryController>
         [HttpGet]
         public IEnumerable<string> Get()// return all
         {
+            categoryRepository.Add(new Category()
+            {
+                CreatedDate = DateTime.Now,
+                Name = "TestCategory1",
+                Description = "SomeSescription",
+                UpdatedDate = DateTime.Now
+            });
+
+            var changed = categoryRepository.Save();
+
             return new string[] { "value1", "value2" };
         }
 
@@ -30,7 +49,7 @@ namespace API.Controllers
         {
         }
 
-        [HttpPut]// PUT aka Update
+        [HttpPut("{categoryName}")]// PUT aka Update
         public void Put(string categoryName, [FromBody] string newCategoryName)
         {
         }

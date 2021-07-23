@@ -12,14 +12,14 @@ namespace DAL
     {
         private readonly IOptionsMonitor<DBConfig> dbConfig;
 
-        public StoreContext(IOptionsMonitor<DBConfig> dbConfig)
+        public StoreContext(DbContextOptions<StoreContext> options, IOptionsMonitor<DBConfig> dbConfig) : base(options)
         {
             this.dbConfig = dbConfig;
 
-            //Database.Migrate();
+            Database.Migrate();
         }
 
-        public DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

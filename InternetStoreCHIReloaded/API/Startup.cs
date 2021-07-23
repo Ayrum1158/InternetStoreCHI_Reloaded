@@ -1,9 +1,12 @@
 using BLL;
 using Common.ConfigPOCOs;
+using DAL;
+using DAL.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -33,11 +36,10 @@ namespace API
             //});
 
             var dbConfigSection = Configuration.GetSection(nameof(DBConfig));
-            services.Configure<DBConfig>(dbConfigSection);
+            services.Configure<DBConfig>(dbConfigSection);// add DBConfig to IOptionsManager
 
             var dbConfig = dbConfigSection.Get<DBConfig>();
             services.ConfigureDBContext(dbConfig);
-            services.ConfigureRepositories();
 
             services.AddControllers();
         }

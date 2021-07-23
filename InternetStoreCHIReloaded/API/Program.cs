@@ -20,12 +20,12 @@ namespace API
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>().UseKestrel();
                 })
             .ConfigureAppConfiguration(configBuilder =>
             {
                 configBuilder
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", true, true)
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true, true)
                 .AddEnvironmentVariables();
             });
