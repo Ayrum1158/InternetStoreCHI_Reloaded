@@ -9,12 +9,9 @@
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
-<<<<<<< HEAD
-=======
   <ItemGroup>
     <Folder Include="Controllers\" />
   </ItemGroup>
 
->>>>>>> CRUDForCategory
 
 </Project>
