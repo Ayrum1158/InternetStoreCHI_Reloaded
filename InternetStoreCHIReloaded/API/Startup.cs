@@ -41,6 +41,8 @@ namespace API
             var dbConfig = dbConfigSection.Get<DBConfig>();
             services.ConfigureDBContext(dbConfig);
 
+            services.ConfigureRepositories();
+
             services.AddControllers();
         }
 

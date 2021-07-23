@@ -1,4 +1,5 @@
-﻿using DAL.Entities;
+﻿using API.ViewModels;
+using DAL.Entities;
 using DAL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -25,16 +26,6 @@ namespace API.Controllers
         [HttpGet]
         public IEnumerable<string> Get()// return all
         {
-            categoryRepository.Add(new Category()
-            {
-                CreatedDate = DateTime.Now,
-                Name = "TestCategory1",
-                Description = "SomeSescription",
-                UpdatedDate = DateTime.Now
-            });
-
-            var changed = categoryRepository.Save();
-
             return new string[] { "value1", "value2" };
         }
 
@@ -45,8 +36,17 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody] string categoryName)// POST aka Create
+        public void Post([FromBody] CategoryPostVM newCategory)// POST aka Create
         {
+            categoryRepository.Add(new Category()
+            {
+                Name = newCategory.CategoryName,
+                Description = newCategory.CategoryDescription,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            });
+
+            var changed = categoryRepository.Save();
         }
 
         [HttpPut("{categoryName}")]// PUT aka Update

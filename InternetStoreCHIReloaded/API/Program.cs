@@ -20,7 +20,9 @@ namespace API
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>().UseKestrel();
+                    webBuilder.UseStartup<Startup>()
+                    .UseEnvironment(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
+                    .UseKestrel();
                 })
             .ConfigureAppConfiguration(configBuilder =>
             {
