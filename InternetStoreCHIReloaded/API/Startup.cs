@@ -1,4 +1,6 @@
 using BLL;
+using BLL.Interfaces;
+using BLL.Services;
 using Common.ConfigPOCOs;
 using DAL;
 using DAL.Interfaces;
@@ -41,7 +43,9 @@ namespace API
             var dbConfig = dbConfigSection.Get<DBConfig>();
             services.ConfigureDBContext(dbConfig);
 
-            services.ConfigureRepositories();
+            services.ConfigureRepositories();// generic and non-generic repositories
+
+            services.AddTransient<ICategoryService, CategoryService>();
 
             services.AddControllers();
         }

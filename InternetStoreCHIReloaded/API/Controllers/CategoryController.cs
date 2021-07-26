@@ -1,10 +1,11 @@
 ﻿using API.ViewModels;
-using DAL.Entities;
-using DAL.Interfaces;
+using BLL.Contracts;
+using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,11 +16,11 @@ namespace API.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly IGenericRepository<Category> categoryRepository;
+        private readonly ICategoryService categoryService;
 
-        public CategoryController(IGenericRepository<Category> categoryRepository)
+        public CategoryController(ICategoryService categoryService)// ctor
         {
-            this.categoryRepository = categoryRepository;
+            this.categoryService = categoryService;
         }
 
         // GET: api/<CategoryController>
@@ -36,22 +37,27 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody] CategoryPostVM newCategory)// POST aka Create
+        public string Post([FromBody] CategoryVM newCategory)// POST aka Create
         {
-            categoryRepository.Add(new Category()
+            var response = categoryService.AddCategory(new CategoryContract()
             {
-                Name = newCategory.CategoryName,
-                Description = newCategory.CategoryDescription,
-                CreatedDate = DateTime.Now,
-                UpdatedDate = DateTime.Now
+                CategoryName = newCategory.CategoryName,
+                CategoryDescription = newCategory.CategoryDescription
             });
-
-            var changed = categoryRepository.Save();
+            return response.Message;
         }
 
-        [HttpPut("{categoryName}")]// PUT aka Update
-        public void Put(string categoryName, [FromBody] string newCategoryName)
+        [HttpPut]// PUT aka Update
+        public string Put([FromBody] CategoryVM updatedCategory)
         {
+            var response = categoryService.UpdateCategory(new CategoryContract
+            {
+                Id = updatedCategory.CategoryId,
+                CategoryName = updatedCategory.CategoryName,
+                CategoryDescription = updatedCategory.CategoryDescription
+            });
+
+            return response.Message;
         }
 
         [HttpDelete]

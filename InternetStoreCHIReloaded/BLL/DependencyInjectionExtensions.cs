@@ -9,7 +9,7 @@ using System.Text;
 
 namespace BLL
 {
-    public static class ServicesDIExtensions
+    public static class DependencyInjectionExtensions
     {
         public static void ConfigureDBContext(this IServiceCollection services, DBConfig dbOptions)
         {
