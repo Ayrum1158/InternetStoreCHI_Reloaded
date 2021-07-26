@@ -14,11 +14,11 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService categoryService;
 
-        public CategoryController(ICategoryService categoryService)// ctor
+        public CategoriesController(ICategoryService categoryService)// ctor
         {
             this.categoryService = categoryService;
         }
