@@ -11,15 +11,7 @@ namespace API.ViewModels
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
         public string CategoryDescription { get; set; }
-
-        //public CategoryContract ToCategoryContract()
-        //{
-        //    return new CategoryContract()
-        //    {
-        //        Id = CategoryId,
-        //        CategoryName = CategoryName,
-        //        CategoryDescription = CategoryDescription
-        //    };
-        //}
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
     }
 }

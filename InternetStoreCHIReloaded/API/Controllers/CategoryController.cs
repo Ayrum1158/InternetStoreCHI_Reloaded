@@ -25,26 +25,66 @@ namespace API.Controllers
 
         // GET: api/<CategoryController>
         [HttpGet]
-        public IEnumerable<string> Get()// return all
+        public ResultContract<IEnumerable<CategoryVM>> Get()// return all
         {
-            return new string[] { "value1", "value2" };
+            var result = categoryService.GetCategories();
+
+            var response = new ResultContract<IEnumerable<CategoryVM>>() { IsSuccessful = result.IsSuccessful, Message = result.Message };
+
+            if (result.IsSuccessful == true)
+            {
+                var data = result.Data.Select(c =>
+                    new CategoryVM()
+                    {
+                        CategoryId = c.Id,
+                        CategoryName = c.CategoryName,
+                        CategoryDescription = c.CategoryDescription,
+                        CreatedDate = c.CreatedDate,
+                        UpdatedDate = c.UpdatedDate
+                    });
+
+                response.Data = data;
+            }
+
+            return response;
         }
 
         [HttpGet("{id}")]
-        public string Get(int id)// return specific
+        public ResultContract<CategoryVM> Get(int id)// return specific
         {
-            return "value";
+            var result = categoryService.GetCategory(id);
+
+            var response = new ResultContract<CategoryVM>()
+            {
+                IsSuccessful = result.IsSuccessful,
+                Message = result.Message
+            };
+
+            if (result.IsSuccessful == true)
+            {
+                var category = result.Data;
+                response.Data = new CategoryVM()
+                {
+                    CategoryId = category.Id,
+                    CategoryName = category.CategoryName,
+                    CategoryDescription = category.CategoryDescription,
+                    CreatedDate = category.CreatedDate,
+                    UpdatedDate = category.UpdatedDate
+                };
+            }
+
+            return response;
         }
 
         [HttpPost]
         public string Post([FromBody] CategoryVM newCategory)// POST aka Create
         {
-            var response = categoryService.AddCategory(new CategoryContract()
+            var result = categoryService.AddCategory(new CategoryContract()
             {
                 CategoryName = newCategory.CategoryName,
                 CategoryDescription = newCategory.CategoryDescription
             });
-            return response.Message;
+            return result.Message;
         }
 
         [HttpPut]// PUT aka Update

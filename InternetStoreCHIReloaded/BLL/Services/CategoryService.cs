@@ -5,6 +5,7 @@ using DAL.Entities;
 using DAL.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BLL.Services
@@ -20,7 +21,7 @@ namespace BLL.Services
 
         public ResultContract AddCategory(CategoryContract newCategory)
         {
-            if(newCategory.IsFormatted())
+            if (newCategory.IsFormatted())
             {
                 var timeNow = DateTime.Now;
 
@@ -45,9 +46,72 @@ namespace BLL.Services
             return result;
         }
 
+        public ResultContract<List<CategoryContract>> GetCategories()
+        {
+            var categories = categoryRepository.GetAll();
+
+            bool success = categories != null;
+
+            var result = new ResultContract<List<CategoryContract>>() { IsSuccessful = success };
+
+            if (success == true)
+            {
+                var categoriesList = categories.Select(c =>
+                    new CategoryContract()
+                    {
+                        Id = c.Id,
+                        CategoryName = c.Name,
+                        CategoryDescription = c.Description,
+                        CreatedDate = c.CreatedDate,
+                        UpdatedDate = c.UpdatedDate
+                    }).ToList();
+
+                result.Data = categoriesList;
+
+                result.Message = "Categories retrieval success!";
+            }
+            else
+            {
+                result.Message = "Unexpected error occured.";
+            }
+
+            return result;
+        }
+
+        public ResultContract<CategoryContract> GetCategory(int id)
+        {
+            var category = categoryRepository.FindFirst(c => c.Id == id);
+
+            bool success = true;
+
+            if (category == null)
+                success = false;
+
+            var result = new ResultContract<CategoryContract>() { IsSuccessful = success };
+
+            if (success == true)
+            {
+                result.Data = new CategoryContract()
+                {
+                    Id = category.Id,
+                    CategoryName = category.Name,
+                    CategoryDescription = category.Description,
+                    CreatedDate = category.CreatedDate,
+                    UpdatedDate = category.UpdatedDate
+                };
+                result.Message = "Category retrieval success!";
+            }
+            else// success == false
+            {
+                result.Message = "Category retrieval failed.";
+            }
+
+            return result;
+        }
+
         public ResultContract UpdateCategory(CategoryContract updatedCategory)
         {
-            if(updatedCategory.IsFormatted())
+            if (updatedCategory.IsFormatted())
             {
                 var category = categoryRepository.FindFirst(c => c.Id == updatedCategory.Id);
 
