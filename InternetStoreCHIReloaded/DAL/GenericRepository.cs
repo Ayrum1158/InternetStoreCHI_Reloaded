@@ -8,7 +8,7 @@ using System.Text;
 
 namespace DAL
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity, new()
     {
         private readonly StoreContext dbcontext;
         private DbSet<T> fieldOfWork;
@@ -42,7 +42,7 @@ namespace DAL
 
         public void Remove(int entityId)
         {
-            T entity = (T)new BaseEntity();
+            T entity = new T();
             entity.Id = entityId;
 
             fieldOfWork.Attach(entity);

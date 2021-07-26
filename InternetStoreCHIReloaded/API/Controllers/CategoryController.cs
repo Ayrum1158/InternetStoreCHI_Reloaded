@@ -88,21 +88,23 @@ namespace API.Controllers
         }
 
         [HttpPut]// PUT aka Update
-        public string Put([FromBody] CategoryVM updatedCategory)
+        public ResultContract Put([FromBody] CategoryVM updatedCategory)
         {
-            var response = categoryService.UpdateCategory(new CategoryContract
+            var result = categoryService.UpdateCategory(new CategoryContract
             {
                 Id = updatedCategory.CategoryId,
                 CategoryName = updatedCategory.CategoryName,
                 CategoryDescription = updatedCategory.CategoryDescription
             });
 
-            return response.Message;
+            return result;
         }
 
-        [HttpDelete]
-        public void Delete(string categoryName)
+        [HttpDelete("{id}")]
+        public ResultContract Delete(int id)
         {
+            var result = categoryService.DeleteCategory(id);
+            return result;
         }
     }
 }

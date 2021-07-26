@@ -78,6 +78,22 @@ namespace BLL.Services
             return result;
         }
 
+        public ResultContract DeleteCategory(int id)
+        {
+            categoryRepository.Remove(id);
+
+            bool success = categoryRepository.Save() > 0;
+
+            var result = new ResultContract() { IsSuccessful = success };
+
+            if(success)
+                result.Message = "Category deleted successfully!";
+            else
+                result.Message = "No changes were made.";
+
+            return result;
+        }
+
         public ResultContract<CategoryContract> GetCategory(int id)
         {
             var category = categoryRepository.FindFirst(c => c.Id == id);
@@ -89,7 +105,7 @@ namespace BLL.Services
 
             var result = new ResultContract<CategoryContract>() { IsSuccessful = success };
 
-            if (success == true)
+            if (success)
             {
                 result.Data = new CategoryContract()
                 {
@@ -126,7 +142,7 @@ namespace BLL.Services
 
             var result = new ResultContract() { IsSuccessful = success };
 
-            if (success == true)
+            if (success)
                 result.Message = "Category updated successfully!";
             else// success == false
                 result.Message = "Unexpected error occured during updated category.";
