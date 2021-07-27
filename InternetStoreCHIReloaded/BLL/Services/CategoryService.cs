@@ -1,4 +1,5 @@
-﻿using BLL.Contracts;
+﻿using AutoMapper;
+using BLL.Contracts;
 using BLL.Extensions;
 using BLL.Interfaces;
 using DAL.Entities;
@@ -13,25 +14,24 @@ namespace BLL.Services
     public class CategoryService : ICategoryService
     {
         private readonly IGenericRepository<Category> categoryRepository;
+        private readonly IMapper mapper;
 
-        public CategoryService(IGenericRepository<Category> categoryRepository)
+        public CategoryService(
+            IGenericRepository<Category> categoryRepository,
+            IMapper mapper)
         {
             this.categoryRepository = categoryRepository;
+            this.mapper = mapper;
         }
 
         public ResultContract AddCategory(CategoryContract newCategory)
         {
-            if (newCategory.IsFormatted())
+            if (newCategory.HasContent())
             {
-                var timeNow = DateTime.Now;
+                var category = mapper.Map<Category>(newCategory);
+                category.CreatedDate = category.UpdatedDate = DateTime.Now;
 
-                categoryRepository.Add(new Category
-                {
-                    Name = newCategory.CategoryName,
-                    Description = newCategory.CategoryDescription,
-                    CreatedDate = timeNow,
-                    UpdatedDate = timeNow
-                });
+                categoryRepository.Add(category);
             }
 
             var success = categoryRepository.Save() > 0;
@@ -46,6 +46,22 @@ namespace BLL.Services
             return result;
         }
 
+        public ResultContract DeleteCategory(int id)
+        {
+            categoryRepository.Remove(id);
+
+            bool success = categoryRepository.Save() > 0;
+
+            var result = new ResultContract() { IsSuccessful = success };
+
+            if (success)
+                result.Message = "Category deleted successfully!";
+            else
+                result.Message = "No changes were made.";
+
+            return result;
+        }
+
         public ResultContract<List<CategoryContract>> GetCategories()
         {
             var categories = categoryRepository.GetAll();
@@ -56,15 +72,7 @@ namespace BLL.Services
 
             if (success == true)
             {
-                var categoriesList = categories.Select(c =>
-                    new CategoryContract()
-                    {
-                        Id = c.Id,
-                        CategoryName = c.Name,
-                        CategoryDescription = c.Description,
-                        CreatedDate = c.CreatedDate,
-                        UpdatedDate = c.UpdatedDate
-                    }).ToList();
+                var categoriesList = mapper.Map<List<CategoryContract>>(categories);
 
                 result.Data = categoriesList;
 
@@ -74,22 +82,6 @@ namespace BLL.Services
             {
                 result.Message = "Unexpected error occured.";
             }
-
-            return result;
-        }
-
-        public ResultContract DeleteCategory(int id)
-        {
-            categoryRepository.Remove(id);
-
-            bool success = categoryRepository.Save() > 0;
-
-            var result = new ResultContract() { IsSuccessful = success };
-
-            if(success)
-                result.Message = "Category deleted successfully!";
-            else
-                result.Message = "No changes were made.";
 
             return result;
         }
@@ -107,14 +99,8 @@ namespace BLL.Services
 
             if (success)
             {
-                result.Data = new CategoryContract()
-                {
-                    Id = category.Id,
-                    CategoryName = category.Name,
-                    CategoryDescription = category.Description,
-                    CreatedDate = category.CreatedDate,
-                    UpdatedDate = category.UpdatedDate
-                };
+                result.Data = mapper.Map<CategoryContract>(category);
+
                 result.Message = "Category retrieval success!";
             }
             else// success == false
@@ -127,9 +113,9 @@ namespace BLL.Services
 
         public ResultContract UpdateCategory(CategoryContract updatedCategory)
         {
-            if (updatedCategory.IsFormatted())
+            if (updatedCategory.HasContent())
             {
-                var category = categoryRepository.FindFirst(c => c.Id == updatedCategory.Id);
+                var category = categoryRepository.FindFirst(c => c.Id == updatedCategory.CategoryId);
 
                 category.Name = updatedCategory.CategoryName;
                 category.Description = updatedCategory.CategoryDescription;

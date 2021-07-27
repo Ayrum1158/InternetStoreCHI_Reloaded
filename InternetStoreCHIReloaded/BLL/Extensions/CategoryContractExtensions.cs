@@ -8,16 +8,16 @@ namespace BLL.Extensions
 {
     public static class CategoryContractExtensions
     {
-        public static bool IsFormatted(this CategoryContract category)
+        public static bool HasContent(this CategoryContract category)
         {
-            bool isFormatted = true;
+            bool hasContent = true;
 
             if (category.CategoryName.IsNullEmptyOrWhiteSpace())
-                isFormatted = false;
+                hasContent = false;
             if (category.CategoryDescription.IsNullEmptyOrWhiteSpace())
-                isFormatted = false;
+                hasContent = false;
 
-            return isFormatted;
+            return hasContent;
         }
     }
 }

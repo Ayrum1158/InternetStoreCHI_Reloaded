@@ -1,8 +1,11 @@
+using API.ViewModels;
 using BLL;
+using BLL.Contracts;
 using BLL.Interfaces;
 using BLL.Services;
 using Common.ConfigPOCOs;
 using DAL;
+using DAL.Entities;
 using DAL.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,6 +45,20 @@ namespace API
 
             var dbConfig = dbConfigSection.Get<DBConfig>();
             services.ConfigureDBContext(dbConfig);
+
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.CreateMap<CategoryContract, CategoryVM>().ReverseMap();
+                cfg.CreateMap<Category, CategoryContract>()
+                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Description))
+                //.ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate))
+                //.ForMember(dest => dest.UpdatedDate, opt => opt.MapFrom(src => src.UpdatedDate));
+                .ReverseMap();
+
+            },
+            typeof(Startup));
 
             services.ConfigureRepositories();// generic and non-generic repositories
 

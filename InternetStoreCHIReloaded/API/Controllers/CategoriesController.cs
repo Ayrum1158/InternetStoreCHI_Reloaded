@@ -1,4 +1,5 @@
 ﻿using API.ViewModels;
+using AutoMapper;
 using BLL.Contracts;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +18,12 @@ namespace API.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService categoryService;
+        private readonly IMapper mapper;
 
-        public CategoriesController(ICategoryService categoryService)// ctor
+        public CategoriesController(ICategoryService categoryService, IMapper mapper)// ctor
         {
             this.categoryService = categoryService;
+            this.mapper = mapper;
         }
 
         // GET: api/<CategoryController>
@@ -33,16 +36,7 @@ namespace API.Controllers
 
             if (result.IsSuccessful == true)
             {
-                var data = result.Data.Select(c =>
-                    new CategoryVM()
-                    {
-                        CategoryId = c.Id,
-                        CategoryName = c.CategoryName,
-                        CategoryDescription = c.CategoryDescription,
-                        CreatedDate = c.CreatedDate,
-                        UpdatedDate = c.UpdatedDate
-                    });
-
+                var data = mapper.Map<List<CategoryVM>>(result.Data);
                 response.Data = data;
             }
 
@@ -63,14 +57,7 @@ namespace API.Controllers
             if (result.IsSuccessful == true)
             {
                 var category = result.Data;
-                response.Data = new CategoryVM()
-                {
-                    CategoryId = category.Id,
-                    CategoryName = category.CategoryName,
-                    CategoryDescription = category.CategoryDescription,
-                    CreatedDate = category.CreatedDate,
-                    UpdatedDate = category.UpdatedDate
-                };
+                response.Data = mapper.Map<CategoryVM>(category);
             }
 
             return response;
@@ -79,24 +66,16 @@ namespace API.Controllers
         [HttpPost]
         public string Post([FromBody] CategoryVM newCategory)// POST aka Create
         {
-            var result = categoryService.AddCategory(new CategoryContract()
-            {
-                CategoryName = newCategory.CategoryName,
-                CategoryDescription = newCategory.CategoryDescription
-            });
+            var contract = mapper.Map<CategoryContract>(newCategory);
+            var result = categoryService.AddCategory(contract);
             return result.Message;
         }
 
         [HttpPut]// PUT aka Update
         public ResultContract Put([FromBody] CategoryVM updatedCategory)
         {
-            var result = categoryService.UpdateCategory(new CategoryContract
-            {
-                Id = updatedCategory.CategoryId,
-                CategoryName = updatedCategory.CategoryName,
-                CategoryDescription = updatedCategory.CategoryDescription
-            });
-
+            var categoryContract = mapper.Map<CategoryContract>(updatedCategory);
+            var result = categoryService.UpdateCategory(categoryContract);
             return result;
         }
 
