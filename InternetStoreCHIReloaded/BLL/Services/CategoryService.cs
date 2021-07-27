@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BLL.Services
 {
@@ -24,24 +25,59 @@ namespace BLL.Services
             this.mapper = mapper;
         }
 
+        private bool Validate(Category category)// only name and description
+        {
+            bool validated = false;
+
+            Regex reg;
+
+            reg = new Regex("^[^ ][a-zA-Z ]{3,20}");
+            validated &= reg.IsMatch(category.CategoryName);
+
+            reg = new Regex("^[^ ][a-zA-Z0-9. -]{3,200}");
+            validated &= reg.IsMatch(category.CategoryDescription);
+
+            return validated;
+        }
+
+        private bool IsPresentInDB(string categoryName)
+        {
+            return categoryRepository.FindFirst(c => c.Name == categoryName) != null;
+        }
+
         public ResultContract AddCategory(Category newCategory)
         {
-            if (newCategory.HasContent())
+            var result = new ResultContract();
+
+            if (Validate(newCategory))
             {
-                var category = mapper.Map<CategoryEntity>(newCategory);
-                category.CreatedDate = category.UpdatedDate = DateTime.Now;
+                if (!IsPresentInDB(newCategory.CategoryName))
+                {
+                    var category = mapper.Map<CategoryEntity>(newCategory);
+                    category.CreatedDate = category.UpdatedDate = DateTime.Now;
 
-                categoryRepository.Add(category);
+                    categoryRepository.Add(category);
+
+                    bool success = categoryRepository.Save() > 0;
+
+                    if (success)
+                        result.Message = "Category added successfully!";
+                    else
+                        result.Message = "Unexpected error occured during adding new category.";
+
+                    result.IsSuccessful = success;
+                }
+                else
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "Category name is already in database.";
+                }
             }
-
-            var success = categoryRepository.Save() > 0;
-
-            var result = new ResultContract() { IsSuccessful = success };
-
-            if (success == true)
-                result.Message = "Category added successfully!";
-            else// success == false
-                result.Message = "Unexpected error occured during adding new category.";
+            else
+            {
+                result.IsSuccessful = false;
+                result.Message = "Inappropriate category name or description";
+            }
 
             return result;
         }
@@ -113,7 +149,9 @@ namespace BLL.Services
 
         public ResultContract UpdateCategory(Category updatedCategory)
         {
-            if (updatedCategory.HasContent())
+            var result = new ResultContract();
+
+            if (Validate(updatedCategory))
             {
                 var category = categoryRepository.FindFirst(c => c.Id == updatedCategory.CategoryId);
 
@@ -122,16 +160,21 @@ namespace BLL.Services
                 category.UpdatedDate = DateTime.Now;
 
                 categoryRepository.Update(category);
+
+                var success = categoryRepository.Save() > 0;
+
+                result.IsSuccessful = success;
+
+                if (success)
+                    result.Message = "Category updated successfully!";
+                else// success == false
+                    result.Message = "Unexpected error occured during updated category.";
             }
-
-            var success = categoryRepository.Save() > 0;
-
-            var result = new ResultContract() { IsSuccessful = success };
-
-            if (success)
-                result.Message = "Category updated successfully!";
-            else// success == false
-                result.Message = "Unexpected error occured during updated category.";
+            else
+            {
+                result.IsSuccessful = false;
+                result.Message = "Inappropriate category name or description";
+            }
 
             return result;
         }

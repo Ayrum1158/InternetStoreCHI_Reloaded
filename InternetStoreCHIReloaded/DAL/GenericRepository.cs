@@ -32,7 +32,7 @@ namespace DAL
 
         public T FindFirst(Func<T, bool> predicate)
         {
-            return fieldOfWork.Where(predicate).First();// exception if none is better then null
+            return fieldOfWork.Where(predicate).FirstOrDefault();
         }
 
         public IEnumerable<T> GetAll()
