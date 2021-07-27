@@ -7,10 +7,10 @@ namespace BLL.Interfaces
 {
     public interface ICategoryService
     {
-        ResultContract AddCategory(CategoryContract newCategory);
+        ResultContract AddCategory(Category newCategory);
         public ResultContract DeleteCategory(int id);
-        ResultContract<CategoryContract> GetCategory(int id);
-        ResultContract<List<CategoryContract>> GetCategories();
-        ResultContract UpdateCategory(CategoryContract newCategoryInfo);
+        ResultContract<Category> GetCategory(int id);
+        ResultContract<List<Category>> GetCategories();
+        ResultContract UpdateCategory(Category newCategoryInfo);
     }
 }

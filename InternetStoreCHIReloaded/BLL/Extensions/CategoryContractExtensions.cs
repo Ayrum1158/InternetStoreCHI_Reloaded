@@ -8,7 +8,7 @@ namespace BLL.Extensions
 {
     public static class CategoryContractExtensions
     {
-        public static bool HasContent(this CategoryContract category)
+        public static bool HasContent(this Category category)
         {
             bool hasContent = true;
 

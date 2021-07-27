@@ -13,22 +13,22 @@ namespace BLL.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly IGenericRepository<Category> categoryRepository;
+        private readonly IGenericRepository<CategoryEntity> categoryRepository;
         private readonly IMapper mapper;
 
         public CategoryService(
-            IGenericRepository<Category> categoryRepository,
+            IGenericRepository<CategoryEntity> categoryRepository,
             IMapper mapper)
         {
             this.categoryRepository = categoryRepository;
             this.mapper = mapper;
         }
 
-        public ResultContract AddCategory(CategoryContract newCategory)
+        public ResultContract AddCategory(Category newCategory)
         {
             if (newCategory.HasContent())
             {
-                var category = mapper.Map<Category>(newCategory);
+                var category = mapper.Map<CategoryEntity>(newCategory);
                 category.CreatedDate = category.UpdatedDate = DateTime.Now;
 
                 categoryRepository.Add(category);
@@ -62,17 +62,17 @@ namespace BLL.Services
             return result;
         }
 
-        public ResultContract<List<CategoryContract>> GetCategories()
+        public ResultContract<List<Category>> GetCategories()
         {
             var categories = categoryRepository.GetAll();
 
             bool success = categories != null;
 
-            var result = new ResultContract<List<CategoryContract>>() { IsSuccessful = success };
+            var result = new ResultContract<List<Category>>() { IsSuccessful = success };
 
             if (success == true)
             {
-                var categoriesList = mapper.Map<List<CategoryContract>>(categories);
+                var categoriesList = mapper.Map<List<Category>>(categories);
 
                 result.Data = categoriesList;
 
@@ -86,7 +86,7 @@ namespace BLL.Services
             return result;
         }
 
-        public ResultContract<CategoryContract> GetCategory(int id)
+        public ResultContract<Category> GetCategory(int id)
         {
             var category = categoryRepository.FindFirst(c => c.Id == id);
 
@@ -95,11 +95,11 @@ namespace BLL.Services
             if (category == null)
                 success = false;
 
-            var result = new ResultContract<CategoryContract>() { IsSuccessful = success };
+            var result = new ResultContract<Category>() { IsSuccessful = success };
 
             if (success)
             {
-                result.Data = mapper.Map<CategoryContract>(category);
+                result.Data = mapper.Map<Category>(category);
 
                 result.Message = "Category retrieval success!";
             }
@@ -111,7 +111,7 @@ namespace BLL.Services
             return result;
         }
 
-        public ResultContract UpdateCategory(CategoryContract updatedCategory)
+        public ResultContract UpdateCategory(Category updatedCategory)
         {
             if (updatedCategory.HasContent())
             {

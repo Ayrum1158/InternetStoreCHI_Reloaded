@@ -48,8 +48,8 @@ namespace API
 
             services.AddAutoMapper(cfg =>
             {
-                cfg.CreateMap<CategoryContract, CategoryVM>().ReverseMap();
-                cfg.CreateMap<Category, CategoryContract>()
+                cfg.CreateMap<Category, CategoryVM>().ReverseMap();
+                cfg.CreateMap<CategoryEntity, Category>()
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Description))

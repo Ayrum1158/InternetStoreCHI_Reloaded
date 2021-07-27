@@ -19,7 +19,7 @@ namespace DAL
             Database.Migrate();
         }
 
-        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<CategoryEntity> Categories { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

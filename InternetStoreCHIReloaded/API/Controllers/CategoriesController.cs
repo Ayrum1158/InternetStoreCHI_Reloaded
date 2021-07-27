@@ -66,7 +66,7 @@ namespace API.Controllers
         [HttpPost]
         public string Post([FromBody] CategoryVM newCategory)// POST aka Create
         {
-            var contract = mapper.Map<CategoryContract>(newCategory);
+            var contract = mapper.Map<Category>(newCategory);
             var result = categoryService.AddCategory(contract);
             return result.Message;
         }
@@ -74,7 +74,7 @@ namespace API.Controllers
         [HttpPut]// PUT aka Update
         public ResultContract Put([FromBody] CategoryVM updatedCategory)
         {
-            var categoryContract = mapper.Map<CategoryContract>(updatedCategory);
+            var categoryContract = mapper.Map<Category>(updatedCategory);
             var result = categoryService.UpdateCategory(categoryContract);
             return result;
         }

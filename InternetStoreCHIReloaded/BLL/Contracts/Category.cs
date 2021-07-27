@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BLL.Contracts
 {
-    public class CategoryContract
+    public class Category
     {
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
