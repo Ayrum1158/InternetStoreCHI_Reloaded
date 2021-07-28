@@ -26,9 +26,9 @@ namespace API.Controllers
 
         // GET: api/<CategoryController>
         [HttpGet]
-        public GenericResponse<IEnumerable<CategoryViewModel>> Get()// return all
+        public async Task<GenericResponse<IEnumerable<CategoryViewModel>>> Get()// return all
         {
-            var result = _categoryService.GetCategories();
+            var result = await _categoryService.GetCategoriesAsync();
 
             var response = new GenericResponse<IEnumerable<CategoryViewModel>>() { IsSuccessful = result.IsSuccessful, Message = result.Message };
 
@@ -42,9 +42,9 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        public GenericResponse<CategoryViewModel> Get(int id)// return specific
+        public async Task<GenericResponse<CategoryViewModel>> Get(int id)// return specific
         {
-            var result = _categoryService.GetCategory(id);
+            var result = await _categoryService.GetCategoryAsync(id);
 
             var response = _mapper.Map<GenericResponse<CategoryViewModel>>(result);
 
@@ -52,10 +52,10 @@ namespace API.Controllers
         }
 
         [HttpPost]// POST aka Create
-        public GenericResponse Post([FromBody] CategoryViewModel newCategory)
+        public async Task<GenericResponse> Post([FromBody] CategoryViewModel newCategory)
         {
             var contract = _mapper.Map<Category>(newCategory);
-            var result = _categoryService.AddCategory(contract);
+            var result = await _categoryService.AddCategoryAsync(contract);
 
             var response = _mapper.Map<GenericResponse>(result);
 
@@ -63,7 +63,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]// PUT aka Update
-        public GenericResponse<CategoryViewModel> Put(int id, [FromBody] CategoryViewModel updatedCategory)
+        public async Task<GenericResponse<CategoryViewModel>> Put(int id, [FromBody] CategoryViewModel updatedCategory)
         {
             if (id != updatedCategory.CategoryId)
                 return new GenericResponse<CategoryViewModel>()
@@ -73,16 +73,16 @@ namespace API.Controllers
                 };
 
             var categoryContract = _mapper.Map<Category>(updatedCategory);
-            var result = _categoryService.UpdateCategory(categoryContract);
+            var result = await _categoryService.UpdateCategoryAsync(categoryContract);
             GenericResponse<CategoryViewModel> response = _mapper.Map<GenericResponse<CategoryViewModel>>(result);
 
             return response;
         }
 
         [HttpDelete("{id}")]
-        public GenericResponse Delete(int id)
+        public async Task<GenericResponse> Delete(int id)
         {
-            var result = _categoryService.DeleteCategory(id);
+            var result = await _categoryService.DeleteCategoryAsync(id);
             var response = _mapper.Map<GenericResponse>(result);
             return response;
         }

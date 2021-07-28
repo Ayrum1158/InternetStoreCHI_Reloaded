@@ -34,6 +34,9 @@ namespace DAL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Name).HasMaxLength(20);
+            modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Description).HasMaxLength(200);
+
             modelBuilder.Seed();
         }
     }

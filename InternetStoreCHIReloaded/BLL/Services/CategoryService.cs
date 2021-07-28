@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace BLL.Services
 {
@@ -44,7 +45,7 @@ namespace BLL.Services
             return _categoryRepository.FindFirstOrDefault(c => c.Name == categoryName) != null;
         }
 
-        public ResultContract AddCategory(Category newCategory)
+        public async Task<ResultContract> AddCategoryAsync(Category newCategory)
         {
             var result = new ResultContract();
 
@@ -79,7 +80,7 @@ namespace BLL.Services
             return result;
         }
 
-        public ResultContract DeleteCategory(int id)
+        public async Task<ResultContract> DeleteCategoryAsync(int id)
         {
             bool success = _categoryRepository.Remove(id);
 
@@ -93,7 +94,7 @@ namespace BLL.Services
             return result;
         }
 
-        public ResultContract<List<Category>> GetCategories()
+        public async Task<ResultContract<List<Category>>> GetCategoriesAsync()
         {
             var categories = _categoryRepository.GetAll();
 
@@ -117,7 +118,7 @@ namespace BLL.Services
             return result;
         }
 
-        public ResultContract<Category> GetCategory(int id)
+        public async Task<ResultContract<Category>> GetCategoryAsync(int id)
         {
             var category = _categoryRepository.FindFirstOrDefault(c => c.Id == id);
 
@@ -142,7 +143,7 @@ namespace BLL.Services
             return result;
         }
 
-        public ResultContract<Category> UpdateCategory(Category updatedCategory)
+        public async Task<ResultContract<Category>> UpdateCategoryAsync(Category updatedCategory)
         {
             var result = new ResultContract<Category>();
 

@@ -2,15 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
     public interface ICategoryService
     {
-        ResultContract AddCategory(Category newCategory);
-        public ResultContract DeleteCategory(int id);
-        ResultContract<Category> GetCategory(int id);
-        ResultContract<List<Category>> GetCategories();
-        ResultContract<Category> UpdateCategory(Category newCategoryInfo);
+        Task<ResultContract> AddCategoryAsync(Category newCategory);
+        Task<ResultContract> DeleteCategoryAsync(int id);
+        Task<ResultContract<Category>> GetCategoryAsync(int id);
+        Task<ResultContract<List<Category>>> GetCategoriesAsync();
+        Task<ResultContract<Category>> UpdateCategoryAsync(Category newCategoryInfo);
     }
 }
