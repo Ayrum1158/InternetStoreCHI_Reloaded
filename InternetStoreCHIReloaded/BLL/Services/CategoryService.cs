@@ -54,7 +54,7 @@ namespace BLL.Services
                 if (!IsPresentInDB(newCategory.CategoryName))
                 {
                     var category = mapper.Map<CategoryEntity>(newCategory);
-                    category.CreatedDate = category.UpdatedDate = DateTime.Now;
+                    category.CreatedDate = category.UpdatedDate = DateTime.UtcNow;
 
                     categoryRepository.Add(category);
 
@@ -157,7 +157,7 @@ namespace BLL.Services
 
                 category.Name = updatedCategory.CategoryName;
                 category.Description = updatedCategory.CategoryDescription;
-                category.UpdatedDate = DateTime.Now;
+                category.UpdatedDate = DateTime.UtcNow;
 
                 categoryRepository.Update(category);
 

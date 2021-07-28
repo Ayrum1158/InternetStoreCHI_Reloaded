@@ -28,15 +28,15 @@ namespace API.Controllers
 
         // GET: api/<CategoryController>
         [HttpGet]
-        public ResultContract<IEnumerable<CategoryVM>> Get()// return all
+        public ResultContract<IEnumerable<CategoryViewModel>> Get()// return all
         {
             var result = categoryService.GetCategories();
 
-            var response = new ResultContract<IEnumerable<CategoryVM>>() { IsSuccessful = result.IsSuccessful, Message = result.Message };
+            var response = new ResultContract<IEnumerable<CategoryViewModel>>() { IsSuccessful = result.IsSuccessful, Message = result.Message };
 
             if (result.IsSuccessful == true)
             {
-                var data = mapper.Map<List<CategoryVM>>(result.Data);
+                var data = mapper.Map<List<CategoryViewModel>>(result.Data);
                 response.Data = data;
             }
 
@@ -44,11 +44,11 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        public ResultContract<CategoryVM> Get(int id)// return specific
+        public ResultContract<CategoryViewModel> Get(int id)// return specific
         {
             var result = categoryService.GetCategory(id);
 
-            var response = new ResultContract<CategoryVM>()
+            var response = new ResultContract<CategoryViewModel>()
             {
                 IsSuccessful = result.IsSuccessful,
                 Message = result.Message
@@ -57,14 +57,14 @@ namespace API.Controllers
             if (result.IsSuccessful == true)
             {
                 var category = result.Data;
-                response.Data = mapper.Map<CategoryVM>(category);
+                response.Data = mapper.Map<CategoryViewModel>(category);
             }
 
             return response;
         }
 
         [HttpPost]
-        public string Post([FromBody] CategoryVM newCategory)// POST aka Create
+        public string Post([FromBody] CategoryViewModel newCategory)// POST aka Create
         {
             var contract = mapper.Map<Category>(newCategory);
             var result = categoryService.AddCategory(contract);
@@ -72,7 +72,7 @@ namespace API.Controllers
         }
 
         [HttpPut]// PUT aka Update
-        public ResultContract Put([FromBody] CategoryVM updatedCategory)
+        public ResultContract Put([FromBody] CategoryViewModel updatedCategory)
         {
             var categoryContract = mapper.Map<Category>(updatedCategory);
             var result = categoryService.UpdateCategory(categoryContract);

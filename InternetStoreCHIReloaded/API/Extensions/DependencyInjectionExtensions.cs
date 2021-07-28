@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BLL
+namespace API.Extensions
 {
     public static class DependencyInjectionExtensions
     {

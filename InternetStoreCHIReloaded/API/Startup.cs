@@ -1,21 +1,15 @@
+using API.Extensions;
 using API.ViewModels;
-using BLL;
 using BLL.Contracts;
 using BLL.Interfaces;
 using BLL.Services;
 using Common.ConfigPOCOs;
-using DAL;
 using DAL.Entities;
-using DAL.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +42,7 @@ namespace API
 
             services.AddAutoMapper(cfg =>
             {
-                cfg.CreateMap<Category, CategoryVM>().ReverseMap();
+                cfg.CreateMap<Category, CategoryViewModel>().ReverseMap();
                 cfg.CreateMap<CategoryEntity, Category>()
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Name))

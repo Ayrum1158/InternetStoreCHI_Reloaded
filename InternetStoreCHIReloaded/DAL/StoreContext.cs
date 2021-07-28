@@ -1,5 +1,6 @@
 ﻿using Common.ConfigPOCOs;
 using DAL.Entities;
+using DAL.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
@@ -15,11 +16,10 @@ namespace DAL
         public StoreContext(DbContextOptions<StoreContext> options, IOptionsMonitor<DBConfig> dbConfig) : base(options)
         {
             this.dbConfig = dbConfig;
-
-            Database.Migrate();
         }
 
         public virtual DbSet<CategoryEntity> Categories { get; set; }
+        public virtual DbSet<ProductEntity> Products { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -34,7 +34,7 @@ namespace DAL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            modelBuilder.Seed();
         }
     }
 }
