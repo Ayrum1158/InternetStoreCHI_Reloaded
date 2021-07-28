@@ -146,14 +146,15 @@ namespace BLL.Services
             return result;
         }
 
-        public ResultContract UpdateCategory(Category updatedCategory)
+        public ResultContract<Category> UpdateCategory(Category updatedCategory)
         {
-            var result = new ResultContract();
+            var result = new ResultContract<Category>();
 
             if (IsValid(updatedCategory))
             {
                 var category = _categoryRepository.FindFirstOrDefault(c => c.Id == updatedCategory.CategoryId);
 
+                //don't use automapper here because we don't want to accidentally change CreatedDate and UpdateDate
                 category.Name = updatedCategory.CategoryName;
                 category.Description = updatedCategory.CategoryDescription;
                 category.UpdatedDate = DateTime.UtcNow;
@@ -165,7 +166,10 @@ namespace BLL.Services
                 result.IsSuccessful = success;
 
                 if (success)
+                {
                     result.Message = "Category updated successfully!";
+                    result.Data = _mapper.Map<Category>(category);
+                }
                 else// success == false
                     result.Message = "Unexpected error occured during updated category.";
             }

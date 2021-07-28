@@ -2,6 +2,7 @@
 using AutoMapper;
 using BLL.Contracts;
 using BLL.Interfaces;
+using Common.Util;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -26,11 +27,11 @@ namespace API.Controllers
 
         // GET: api/<CategoryController>
         [HttpGet]
-        public ResultContract<IEnumerable<CategoryViewModel>> Get()// return all
+        public GenericResponse<IEnumerable<CategoryViewModel>> Get()// return all
         {
             var result = _categoryService.GetCategories();
 
-            var response = new ResultContract<IEnumerable<CategoryViewModel>>() { IsSuccessful = result.IsSuccessful, Message = result.Message };
+            var response = new GenericResponse<IEnumerable<CategoryViewModel>>() { IsSuccessful = result.IsSuccessful, Message = result.Message };
 
             if (result.IsSuccessful == true)
             {
@@ -42,46 +43,49 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        public ResultContract<CategoryViewModel> Get(int id)// return specific
+        public GenericResponse<CategoryViewModel> Get(int id)// return specific
         {
             var result = _categoryService.GetCategory(id);
 
-            var response = new ResultContract<CategoryViewModel>()
-            {
-                IsSuccessful = result.IsSuccessful,
-                Message = result.Message
-            };
-
-            if (result.IsSuccessful == true)
-            {
-                var category = result.Data;
-                response.Data = _mapper.Map<CategoryViewModel>(category);
-            }
+            var response = _mapper.Map<GenericResponse<CategoryViewModel>>(result);
 
             return response;
         }
 
-        [HttpPost]
-        public string Post([FromBody] CategoryViewModel newCategory)// POST aka Create
+        [HttpPost]// POST aka Create
+        public GenericResponse Post([FromBody] CategoryViewModel newCategory)
         {
             var contract = _mapper.Map<Category>(newCategory);
             var result = _categoryService.AddCategory(contract);
-            return result.Message;
+
+            var response = _mapper.Map<GenericResponse>(result);
+
+            return response;
         }
 
-        [HttpPut]// PUT aka Update
-        public ResultContract Put([FromBody] CategoryViewModel updatedCategory)
+        [HttpPut("{id}")]// PUT aka Update
+        public GenericResponse<CategoryViewModel> Put(int id, [FromBody] CategoryViewModel updatedCategory)
         {
+            if (id != updatedCategory.CategoryId)
+                return new GenericResponse<CategoryViewModel>()
+                {
+                    IsSuccessful = false,
+                    Message = "Ids in url and body are not mathing"
+                };
+
             var categoryContract = _mapper.Map<Category>(updatedCategory);
             var result = _categoryService.UpdateCategory(categoryContract);
-            return result;
+            GenericResponse<CategoryViewModel> response = _mapper.Map<GenericResponse<CategoryViewModel>>(result);
+
+            return response;
         }
 
         [HttpDelete("{id}")]
-        public ResultContract Delete(int id)
+        public GenericResponse Delete(int id)
         {
             var result = _categoryService.DeleteCategory(id);
-            return result;
+            var response = _mapper.Map<GenericResponse>(result);
+            return response;
         }
     }
 }

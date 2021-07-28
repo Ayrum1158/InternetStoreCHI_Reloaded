@@ -11,6 +11,6 @@ namespace BLL.Interfaces
         public ResultContract DeleteCategory(int id);
         ResultContract<Category> GetCategory(int id);
         ResultContract<List<Category>> GetCategories();
-        ResultContract UpdateCategory(Category newCategoryInfo);
+        ResultContract<Category> UpdateCategory(Category newCategoryInfo);
     }
 }
