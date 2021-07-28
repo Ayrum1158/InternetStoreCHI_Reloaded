@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BLL.Contracts;
-using BLL.Extensions;
 using BLL.Interfaces;
 using DAL.Entities;
 using DAL.Interfaces;
