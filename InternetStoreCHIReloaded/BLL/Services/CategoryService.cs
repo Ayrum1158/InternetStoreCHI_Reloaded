@@ -55,9 +55,7 @@ namespace BLL.Services
                     var category = _mapper.Map<CategoryEntity>(newCategory);
                     category.CreatedDate = category.UpdatedDate = DateTime.UtcNow;
 
-                    _categoryRepository.Add(category);
-
-                    bool success = _categoryRepository.Save() > 0;
+                    bool success = _categoryRepository.Add(category);
 
                     if (success)
                         result.Message = "Category added successfully!";
@@ -83,9 +81,7 @@ namespace BLL.Services
 
         public ResultContract DeleteCategory(int id)
         {
-            _categoryRepository.Remove(id);
-
-            bool success = _categoryRepository.Save() > 0;
+            bool success = _categoryRepository.Remove(id);
 
             var result = new ResultContract() { IsSuccessful = success };
 
@@ -159,9 +155,7 @@ namespace BLL.Services
                 category.Description = updatedCategory.CategoryDescription;
                 category.UpdatedDate = DateTime.UtcNow;
 
-                _categoryRepository.Update(category);
-
-                var success = _categoryRepository.Save() > 0;
+                var success = _categoryRepository.Update(category);
 
                 result.IsSuccessful = success;
 

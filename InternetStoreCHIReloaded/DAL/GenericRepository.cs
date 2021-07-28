@@ -20,9 +20,11 @@ namespace DAL
             _fieldOfWork = dbcontext.Set<T>();
         }
 
-        public void Add(T entity)
+        public bool Add(T entity)
         {
             _fieldOfWork.Add(entity);
+
+            return Save();
         }
 
         public IEnumerable<T> FindAll(Func<T, bool> predicate)
@@ -40,23 +42,27 @@ namespace DAL
             return _fieldOfWork.ToList();
         }
 
-        public void Remove(int entityId)
+        public bool Remove(int entityId)
         {
             T entity = new T();
             entity.Id = entityId;
 
             _fieldOfWork.Attach(entity);
             _fieldOfWork.Remove(entity);
+
+            return Save();
         }
 
-        public int Save()
-        {
-            return _dbcontext.SaveChanges();
-        }
-
-        public void Update(T entity)
+        public bool Update(T entity)
         {
             _fieldOfWork.Update(entity);
+
+            return Save();
+        }
+
+        private bool Save()
+        {
+            return _dbcontext.SaveChanges() > 0;
         }
     }
 }

@@ -2,7 +2,6 @@
 using AutoMapper;
 using BLL.Contracts;
 using BLL.Interfaces;
-using Common.Util;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
