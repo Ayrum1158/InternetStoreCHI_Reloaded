@@ -14,20 +14,20 @@ namespace BLL.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly IGenericRepository<CategoryEntity> categoryRepository;
-        private readonly IMapper mapper;
+        private readonly IGenericRepository<CategoryEntity> _categoryRepository;
+        private readonly IMapper _mapper;
 
         public CategoryService(
             IGenericRepository<CategoryEntity> categoryRepository,
             IMapper mapper)
         {
-            this.categoryRepository = categoryRepository;
-            this.mapper = mapper;
+            _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
-        private bool Validate(Category category)// only name and description
+        private bool IsValid(Category category)// only name and description
         {
-            bool validated = false;
+            bool validated = true;
 
             Regex reg;
 
@@ -40,25 +40,25 @@ namespace BLL.Services
             return validated;
         }
 
-        private bool IsPresentInDB(string categoryName)
+        private bool IsPresentInDb(string categoryName)
         {
-            return categoryRepository.FindFirst(c => c.Name == categoryName) != null;
+            return _categoryRepository.FindFirstOrDefault(c => c.Name == categoryName) != null;
         }
 
         public ResultContract AddCategory(Category newCategory)
         {
             var result = new ResultContract();
 
-            if (Validate(newCategory))
+            if (IsValid(newCategory))
             {
-                if (!IsPresentInDB(newCategory.CategoryName))
+                if (!IsPresentInDb(newCategory.CategoryName))
                 {
-                    var category = mapper.Map<CategoryEntity>(newCategory);
+                    var category = _mapper.Map<CategoryEntity>(newCategory);
                     category.CreatedDate = category.UpdatedDate = DateTime.UtcNow;
 
-                    categoryRepository.Add(category);
+                    _categoryRepository.Add(category);
 
-                    bool success = categoryRepository.Save() > 0;
+                    bool success = _categoryRepository.Save() > 0;
 
                     if (success)
                         result.Message = "Category added successfully!";
@@ -84,9 +84,9 @@ namespace BLL.Services
 
         public ResultContract DeleteCategory(int id)
         {
-            categoryRepository.Remove(id);
+            _categoryRepository.Remove(id);
 
-            bool success = categoryRepository.Save() > 0;
+            bool success = _categoryRepository.Save() > 0;
 
             var result = new ResultContract() { IsSuccessful = success };
 
@@ -100,7 +100,7 @@ namespace BLL.Services
 
         public ResultContract<List<Category>> GetCategories()
         {
-            var categories = categoryRepository.GetAll();
+            var categories = _categoryRepository.GetAll();
 
             bool success = categories != null;
 
@@ -108,7 +108,7 @@ namespace BLL.Services
 
             if (success == true)
             {
-                var categoriesList = mapper.Map<List<Category>>(categories);
+                var categoriesList = _mapper.Map<List<Category>>(categories);
 
                 result.Data = categoriesList;
 
@@ -124,7 +124,7 @@ namespace BLL.Services
 
         public ResultContract<Category> GetCategory(int id)
         {
-            var category = categoryRepository.FindFirst(c => c.Id == id);
+            var category = _categoryRepository.FindFirstOrDefault(c => c.Id == id);
 
             bool success = true;
 
@@ -135,7 +135,7 @@ namespace BLL.Services
 
             if (success)
             {
-                result.Data = mapper.Map<Category>(category);
+                result.Data = _mapper.Map<Category>(category);
 
                 result.Message = "Category retrieval success!";
             }
@@ -151,17 +151,17 @@ namespace BLL.Services
         {
             var result = new ResultContract();
 
-            if (Validate(updatedCategory))
+            if (IsValid(updatedCategory))
             {
-                var category = categoryRepository.FindFirst(c => c.Id == updatedCategory.CategoryId);
+                var category = _categoryRepository.FindFirstOrDefault(c => c.Id == updatedCategory.CategoryId);
 
                 category.Name = updatedCategory.CategoryName;
                 category.Description = updatedCategory.CategoryDescription;
                 category.UpdatedDate = DateTime.UtcNow;
 
-                categoryRepository.Update(category);
+                _categoryRepository.Update(category);
 
-                var success = categoryRepository.Save() > 0;
+                var success = _categoryRepository.Save() > 0;
 
                 result.IsSuccessful = success;
 

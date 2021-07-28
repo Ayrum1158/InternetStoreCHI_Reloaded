@@ -17,26 +17,26 @@ namespace API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryService categoryService;
-        private readonly IMapper mapper;
+        private readonly ICategoryService _categoryService;
+        private readonly IMapper _mapper;
 
         public CategoriesController(ICategoryService categoryService, IMapper mapper)// ctor
         {
-            this.categoryService = categoryService;
-            this.mapper = mapper;
+            _categoryService = categoryService;
+            _mapper = mapper;
         }
 
         // GET: api/<CategoryController>
         [HttpGet]
         public ResultContract<IEnumerable<CategoryViewModel>> Get()// return all
         {
-            var result = categoryService.GetCategories();
+            var result = _categoryService.GetCategories();
 
             var response = new ResultContract<IEnumerable<CategoryViewModel>>() { IsSuccessful = result.IsSuccessful, Message = result.Message };
 
             if (result.IsSuccessful == true)
             {
-                var data = mapper.Map<List<CategoryViewModel>>(result.Data);
+                var data = _mapper.Map<List<CategoryViewModel>>(result.Data);
                 response.Data = data;
             }
 
@@ -46,7 +46,7 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public ResultContract<CategoryViewModel> Get(int id)// return specific
         {
-            var result = categoryService.GetCategory(id);
+            var result = _categoryService.GetCategory(id);
 
             var response = new ResultContract<CategoryViewModel>()
             {
@@ -57,7 +57,7 @@ namespace API.Controllers
             if (result.IsSuccessful == true)
             {
                 var category = result.Data;
-                response.Data = mapper.Map<CategoryViewModel>(category);
+                response.Data = _mapper.Map<CategoryViewModel>(category);
             }
 
             return response;
@@ -66,23 +66,23 @@ namespace API.Controllers
         [HttpPost]
         public string Post([FromBody] CategoryViewModel newCategory)// POST aka Create
         {
-            var contract = mapper.Map<Category>(newCategory);
-            var result = categoryService.AddCategory(contract);
+            var contract = _mapper.Map<Category>(newCategory);
+            var result = _categoryService.AddCategory(contract);
             return result.Message;
         }
 
         [HttpPut]// PUT aka Update
         public ResultContract Put([FromBody] CategoryViewModel updatedCategory)
         {
-            var categoryContract = mapper.Map<Category>(updatedCategory);
-            var result = categoryService.UpdateCategory(categoryContract);
+            var categoryContract = _mapper.Map<Category>(updatedCategory);
+            var result = _categoryService.UpdateCategory(categoryContract);
             return result;
         }
 
         [HttpDelete("{id}")]
         public ResultContract Delete(int id)
         {
-            var result = categoryService.DeleteCategory(id);
+            var result = _categoryService.DeleteCategory(id);
             return result;
         }
     }

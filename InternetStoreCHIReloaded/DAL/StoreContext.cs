@@ -11,11 +11,11 @@ namespace DAL
 {
     public class StoreContext : DbContext
     {
-        private readonly IOptionsMonitor<DBConfig> dbConfig;
+        private readonly IOptionsMonitor<DBConfig> _dbConfig;
 
         public StoreContext(DbContextOptions<StoreContext> options, IOptionsMonitor<DBConfig> dbConfig) : base(options)
         {
-            this.dbConfig = dbConfig;
+            _dbConfig = dbConfig;
         }
 
         public virtual DbSet<CategoryEntity> Categories { get; set; }
@@ -25,7 +25,7 @@ namespace DAL
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var connectionString = dbConfig.CurrentValue.ConnectionString;
+                var connectionString = _dbConfig.CurrentValue.ConnectionString;
                 optionsBuilder.UseSqlServer(connectionString);
             }
 

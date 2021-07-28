@@ -10,34 +10,34 @@ namespace DAL
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity, new()
     {
-        private readonly StoreContext dbcontext;
-        private DbSet<T> fieldOfWork;
+        private readonly StoreContext _dbcontext;
+        private DbSet<T> _fieldOfWork;
 
         public GenericRepository(StoreContext dbcontext)
         {
-            this.dbcontext = dbcontext;
+            _dbcontext = dbcontext;
 
-            fieldOfWork = dbcontext.Set<T>();
+            _fieldOfWork = dbcontext.Set<T>();
         }
 
         public void Add(T entity)
         {
-            fieldOfWork.Add(entity);
+            _fieldOfWork.Add(entity);
         }
 
         public IEnumerable<T> FindAll(Func<T, bool> predicate)
         {
-            return fieldOfWork.Where(predicate).ToList();
+            return _fieldOfWork.Where(predicate).ToList();
         }
 
-        public T FindFirst(Func<T, bool> predicate)
+        public T FindFirstOrDefault(Func<T, bool> predicate)
         {
-            return fieldOfWork.Where(predicate).FirstOrDefault();
+            return _fieldOfWork.Where(predicate).FirstOrDefault();
         }
 
         public IEnumerable<T> GetAll()
         {
-            return fieldOfWork.ToList();
+            return _fieldOfWork.ToList();
         }
 
         public void Remove(int entityId)
@@ -45,18 +45,18 @@ namespace DAL
             T entity = new T();
             entity.Id = entityId;
 
-            fieldOfWork.Attach(entity);
-            fieldOfWork.Remove(entity);
+            _fieldOfWork.Attach(entity);
+            _fieldOfWork.Remove(entity);
         }
 
         public int Save()
         {
-            return dbcontext.SaveChanges();
+            return _dbcontext.SaveChanges();
         }
 
         public void Update(T entity)
         {
-            fieldOfWork.Update(entity);
+            _fieldOfWork.Update(entity);
         }
     }
 }
