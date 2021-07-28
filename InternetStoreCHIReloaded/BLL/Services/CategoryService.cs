@@ -32,10 +32,10 @@ namespace BLL.Services
             Regex reg;
 
             reg = new Regex("^[^ ][a-zA-Z ]{3,20}");
-            validated &= reg.IsMatch(category.CategoryName);
+            validated = validated && reg.IsMatch(category.CategoryName);
 
             reg = new Regex("^[^ ][a-zA-Z0-9. -]{3,200}");
-            validated &= reg.IsMatch(category.CategoryDescription);
+            validated = validated && reg.IsMatch(category.CategoryDescription);
 
             return validated;
         }
