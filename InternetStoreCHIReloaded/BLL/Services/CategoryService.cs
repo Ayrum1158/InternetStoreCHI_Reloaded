@@ -3,6 +3,7 @@ using BLL.Contracts;
 using BLL.Interfaces;
 using DAL.Entities;
 using DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,9 +83,21 @@ namespace BLL.Services
 
         public async Task<ResultContract> DeleteCategoryAsync(int id)
         {
-            bool success = _categoryRepository.Remove(id);
+            var result = new ResultContract();
+            bool success;
 
-            var result = new ResultContract() { IsSuccessful = success };
+            try
+            {
+                success = _categoryRepository.Remove(id);
+            }
+            catch(DbUpdateConcurrencyException)// when trying to delete with id not in Db
+            {
+                result.IsSuccessful = false;
+                result.Message = $"No entry with Id={id} was found.";
+                return result;
+            }
+
+            result.IsSuccessful = success;
 
             if (success)
                 result.Message = "Category deleted successfully!";
