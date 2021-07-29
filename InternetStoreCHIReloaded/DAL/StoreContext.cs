@@ -1,4 +1,4 @@
-﻿using Common.ConfigPOCOs;
+﻿using DAL.ConfigPOCOs;
 using DAL.Entities;
 using DAL.Extensions;
 using Microsoft.EntityFrameworkCore;
