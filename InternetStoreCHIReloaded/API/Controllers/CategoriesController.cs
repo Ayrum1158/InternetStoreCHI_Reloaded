@@ -24,7 +24,6 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/<CategoryController>
         [HttpGet]
         public async Task<GenericResponse<IEnumerable<CategoryViewModel>>> Get()// return all
         {
