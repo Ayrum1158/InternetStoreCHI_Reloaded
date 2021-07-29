@@ -1,5 +1,6 @@
-﻿using Common.ConfigPOCOs;
+﻿using DAL.ConfigPOCOs;
 using DAL.Entities;
+using DAL.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
@@ -10,23 +11,22 @@ namespace DAL
 {
     public class StoreContext : DbContext
     {
+        private readonly IOptionsMonitor<DBConfig> _dbConfig;
 
-        private readonly IOptionsMonitor<DBConfig> dbConfig;
-
-        public StoreContext(IOptionsMonitor<DBConfig> dbConfig)
+        public StoreContext(DbContextOptions<StoreContext> options, IOptionsMonitor<DBConfig> dbConfig) : base(options)
         {
-            this.dbConfig = dbConfig;
-
-            //Database.Migrate();
+            _dbConfig = dbConfig;
         }
 
-        public DbSet<Category> Categories { get; set; }
+        public virtual DbSet<CategoryEntity> Categories { get; set; }
+        public virtual DbSet<ProductEntity> Products { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(dbConfig.CurrentValue.ConnectionString);
+                var connectionString = _dbConfig.CurrentValue.ConnectionString;
+                optionsBuilder.UseSqlServer(connectionString);
             }
 
             //optionsBuilder.UseLazyLoadingProxies();
@@ -34,7 +34,10 @@ namespace DAL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Name).HasMaxLength(20);
+            modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Description).HasMaxLength(200);
 
+            modelBuilder.Seed();
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Common.ConfigPOCOs
+namespace DAL.ConfigPOCOs
 {
     public class DBConfig
     {

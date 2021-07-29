@@ -8,55 +8,71 @@ using System.Text;
 
 namespace DAL
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity, new()
     {
-        private readonly StoreContext dbcontext;
-        private DbSet<T> fieldOfWork;
+        private readonly StoreContext _dbcontext;
+        private DbSet<T> _fieldOfWork;
 
         public GenericRepository(StoreContext dbcontext)
         {
-            this.dbcontext = dbcontext;
+            _dbcontext = dbcontext;
 
-            fieldOfWork = dbcontext.Set<T>();
+            _fieldOfWork = dbcontext.Set<T>();
         }
 
-        public void Add(T entity)
+        public bool Add(T entity)
         {
-            fieldOfWork.Add(entity);
+            _fieldOfWork.Add(entity);
+
+            return Save();
         }
 
         public IEnumerable<T> FindAll(Func<T, bool> predicate)
         {
-            return fieldOfWork.Where(predicate).ToList();
+            return _fieldOfWork.Where(predicate).ToList();
         }
 
-        public T FindFirst(Func<T, bool> predicate)
+        public T FindFirstOrDefault(Func<T, bool> predicate)
         {
-            return fieldOfWork.Where(predicate).First();// exception if none is better then null
+            return _fieldOfWork.Where(predicate).FirstOrDefault();
         }
 
         public IEnumerable<T> GetAll()
         {
-            return fieldOfWork.ToList();
+            return _fieldOfWork.ToList();
         }
 
-        public void Remove(int entityId)
+        public bool Remove(int entityId)
         {
-            T entity = (T)new BaseEntity();
+            T entity = new T();
             entity.Id = entityId;
 
-            fieldOfWork.Attach(entity);
-            fieldOfWork.Remove(entity);
+            _fieldOfWork.Attach(entity);
+            _fieldOfWork.Remove(entity);
+
+            bool success = true;
+            try
+            {
+                success = Save();
+            }
+            catch (DbUpdateConcurrencyException)// when trying to delete with id not in Db
+            {
+                success = false;
+            }
+
+            return success;
         }
 
-        public int Save()
+        public bool Update(T entity)
         {
-            return dbcontext.SaveChanges();
+            _fieldOfWork.Update(entity);
+
+            return Save();
         }
 
-        public void Update(T entity)
+        private bool Save()
         {
-            fieldOfWork.Update(entity);
+            return _dbcontext.SaveChanges() > 0;
         }
     }
 }
