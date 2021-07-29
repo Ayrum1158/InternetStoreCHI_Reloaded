@@ -1,10 +1,7 @@
 using API.Extensions;
-using API.ViewModels;
-using BLL.Contracts;
 using BLL.Interfaces;
 using BLL.Services;
 using DAL.ConfigPOCOs;
-using DAL.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

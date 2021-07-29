@@ -1,6 +1,6 @@
 ﻿using API.ViewModels;
 using BLL.Contracts;
-using Common.ConfigPOCOs;
+using DAL.ConfigPOCOs;
 using DAL;
 using DAL.Entities;
 using DAL.Interfaces;
