@@ -11,5 +11,7 @@ namespace DAL.Entities
         public decimal Price { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public CategoryEntity Category { get; set; }
+        public int CategoryId { get; set; }
     }
 }

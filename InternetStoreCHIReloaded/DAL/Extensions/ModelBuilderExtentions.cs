@@ -46,7 +46,8 @@ namespace DAL.Extensions
                     Description = "Best smartphone for the best daddies",
                     Price = (decimal)1337.69,
                     CreatedDate = timeNow,
-                    UpdatedDate = timeNow
+                    UpdatedDate = timeNow,
+                    CategoryId = -1
                 },
                 new ProductEntity()
                 {
@@ -55,7 +56,8 @@ namespace DAL.Extensions
                     Description = "4k to masses, money in cases",
                     Price = (decimal)484.74,
                     CreatedDate = timeNow,
-                    UpdatedDate = timeNow
+                    UpdatedDate = timeNow,
+                    CategoryId = -2
                 },
                 new ProductEntity()
                 {
@@ -64,7 +66,8 @@ namespace DAL.Extensions
                     Description = "DC Powah!",
                     Price = (decimal)123000.0,
                     CreatedDate = timeNow,
-                    UpdatedDate = timeNow
+                    UpdatedDate = timeNow,
+                    CategoryId = -3
                 });
         }
     }

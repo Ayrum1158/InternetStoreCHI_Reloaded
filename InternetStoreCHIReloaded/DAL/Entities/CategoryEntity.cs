@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace DAL.Entities
@@ -10,5 +11,7 @@ namespace DAL.Entities
         public string Description { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+
+        public IEnumerable<ProductEntity> Products { get; set; }
     }
 }

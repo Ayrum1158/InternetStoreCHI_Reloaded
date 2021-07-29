@@ -37,6 +37,11 @@ namespace DAL
             modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Name).HasMaxLength(20);
             modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Description).HasMaxLength(200);
 
+            modelBuilder.Entity<CategoryEntity>().HasKey(ce => ce.Id);
+            modelBuilder.Entity<ProductEntity>().HasKey(pe => pe.Id);
+
+            modelBuilder.Entity<ProductEntity>().HasOne(pe => pe.Category).WithMany(ce => ce.Products).HasForeignKey(pe => pe.CategoryId);
+
             modelBuilder.Seed();
         }
     }
