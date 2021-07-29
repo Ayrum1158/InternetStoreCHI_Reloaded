@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace BLL.Services
 {
-    public class CategoryService : ICategoryService
+    public class CategoriesService : ICategoriesService
     {
         private readonly IGenericRepository<CategoryEntity> _categoryRepository;
         private readonly IMapper _mapper;
 
-        public CategoryService(
+        public CategoriesService(
             IGenericRepository<CategoryEntity> categoryRepository,
             IMapper mapper)
         {
@@ -28,17 +28,17 @@ namespace BLL.Services
 
         private bool IsValid(Category category)// only name and description
         {
-            bool validated = true;
+            bool valid = true;
 
             Regex reg;
 
             reg = new Regex("^[^ ][a-zA-Z ]{3,20}");
-            validated = validated && reg.IsMatch(category.CategoryName);
+            valid = valid && reg.IsMatch(category.CategoryName);
 
             reg = new Regex("^[^ ][a-zA-Z0-9. -]{3,200}");
-            validated = validated && reg.IsMatch(category.CategoryDescription);
+            valid = valid && reg.IsMatch(category.CategoryDescription);
 
-            return validated;
+            return valid;
         }
 
         private bool IsPresentInDb(string categoryName)

@@ -15,10 +15,10 @@ namespace API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryService _categoryService;
+        private readonly ICategoriesService _categoryService;
         private readonly IMapper _mapper;
 
-        public CategoriesController(ICategoryService categoryService, IMapper mapper)// ctor
+        public CategoriesController(ICategoriesService categoryService, IMapper mapper)// ctor
         {
             _categoryService = categoryService;
             _mapper = mapper;

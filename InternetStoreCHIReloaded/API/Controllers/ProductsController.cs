@@ -1,4 +1,7 @@
 ﻿using API.ViewModels;
+using BLL.Interfaces;
+using DAL.Entities;
+using DAL.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,6 +15,8 @@ namespace API.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
+        private readonly IProductsService _productService;
+
         public ProductsController()
         {
 

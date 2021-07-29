@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
-    public interface ICategoryService
+    public interface ICategoriesService
     {
         Task<ResultContract> AddCategoryAsync(Category newCategory);
         Task<ResultContract> DeleteCategoryAsync(int id);
