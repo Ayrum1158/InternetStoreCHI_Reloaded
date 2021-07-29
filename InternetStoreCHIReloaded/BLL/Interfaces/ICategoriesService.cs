@@ -8,7 +8,7 @@ namespace BLL.Interfaces
 {
     public interface ICategoriesService
     {
-        Task<ResultContract> AddCategoryAsync(Category newCategory);
+        Task<ResultContract<Category>> AddCategoryAsync(Category newCategory);
         Task<ResultContract> DeleteCategoryAsync(int id);
         Task<ResultContract<Category>> GetCategoryAsync(int id);
         Task<ResultContract<List<Category>>> GetCategoriesAsync();

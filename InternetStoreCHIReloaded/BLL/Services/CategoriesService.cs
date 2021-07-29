@@ -46,21 +46,24 @@ namespace BLL.Services
             return _categoryRepository.FindFirstOrDefault(c => c.Name == categoryName) != null;
         }
 
-        public async Task<ResultContract> AddCategoryAsync(Category newCategory)
+        public async Task<ResultContract<Category>> AddCategoryAsync(Category newCategory)
         {
-            var result = new ResultContract();
+            var result = new ResultContract<Category>();
 
             if (IsValid(newCategory))
             {
                 if (!IsPresentInDb(newCategory.CategoryName))
                 {
-                    var category = _mapper.Map<CategoryEntity>(newCategory);
-                    category.CreatedDate = category.UpdatedDate = DateTime.UtcNow;
+                    var categoryEntity = _mapper.Map<CategoryEntity>(newCategory);
+                    categoryEntity.CreatedDate = categoryEntity.UpdatedDate = DateTime.UtcNow;
 
-                    bool success = _categoryRepository.Add(category);
+                    bool success = _categoryRepository.Add(categoryEntity);
 
                     if (success)
+                    {
                         result.Message = "Category added successfully!";
+                        result.Data = _mapper.Map<Category>(categoryEntity);
+                    }
                     else
                         result.Message = "Unexpected error occured during adding new category.";
 
@@ -86,16 +89,7 @@ namespace BLL.Services
             var result = new ResultContract();
             bool success;
 
-            try
-            {
-                success = _categoryRepository.Remove(id);
-            }
-            catch(DbUpdateConcurrencyException)// when trying to delete with id not in Db
-            {
-                result.IsSuccessful = false;
-                result.Message = $"No entry with Id={id} was found.";
-                return result;
-            }
+            success = _categoryRepository.Remove(id);
 
             result.IsSuccessful = success;
 

@@ -51,12 +51,13 @@ namespace API.Controllers
         }
 
         [HttpPost]// POST aka Create
-        public async Task<GenericResponse> Post([FromBody] CategoryViewModel newCategory)
+        public async Task<GenericResponse<CategoryViewModel>> Post([FromBody] CategoryViewModel newCategory)
         {
             var contract = _mapper.Map<Category>(newCategory);
+
             var result = await _categoryService.AddCategoryAsync(contract);
 
-            var response = _mapper.Map<GenericResponse>(result);
+            var response = _mapper.Map<GenericResponse<CategoryViewModel>>(result);
 
             return response;
         }

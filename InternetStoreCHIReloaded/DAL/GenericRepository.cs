@@ -50,7 +50,17 @@ namespace DAL
             _fieldOfWork.Attach(entity);
             _fieldOfWork.Remove(entity);
 
-            return Save();
+            bool success = true;
+            try
+            {
+                success = Save();
+            }
+            catch (DbUpdateConcurrencyException)// when trying to delete with id not in Db
+            {
+                success = false;
+            }
+
+            return success;
         }
 
         public bool Update(T entity)
