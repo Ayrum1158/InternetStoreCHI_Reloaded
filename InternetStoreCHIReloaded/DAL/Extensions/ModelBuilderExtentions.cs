@@ -15,7 +15,7 @@ namespace DAL.Extensions
             modelBuilder.Entity<CategoryEntity>().HasData(
                 new CategoryEntity()
                 {
-                    Id = -1,
+                    Id = 1,
                     Name = "Smatrphone",
                     Description = "Like the phone, but cooler",
                     CreatedDate = timeNow,
@@ -23,7 +23,7 @@ namespace DAL.Extensions
                 },
                 new CategoryEntity()
                 {
-                    Id = -2,
+                    Id = 2,
                     Name = "TV",
                     Description = "Like the smartphone, but bigger",
                     CreatedDate = timeNow,
@@ -31,7 +31,7 @@ namespace DAL.Extensions
                 },
                 new CategoryEntity()
                 {
-                    Id = -3,
+                    Id = 3,
                     Name = "Car",
                     Description = "Totally not like a TV, gives you a nice ride though",
                     CreatedDate = timeNow,
@@ -41,7 +41,7 @@ namespace DAL.Extensions
             modelBuilder.Entity<ProductEntity>().HasData(
                 new ProductEntity()
                 {
-                    Id = -1,
+                    Id = 1,
                     Name = "Shwamsung Galaxy Milky Way 8 - Infinitely Blue",
                     Description = "Best smartphone for the best daddies",
                     Price = (decimal)1337.69,
@@ -50,7 +50,7 @@ namespace DAL.Extensions
                 },
                 new ProductEntity()
                 {
-                    Id = -2,
+                    Id = 2,
                     Name = "Salami Mi LED TV 4S 50 inch",
                     Description = "4k to masses, money in cases",
                     Price = (decimal)484.74,
@@ -59,7 +59,7 @@ namespace DAL.Extensions
                 },
                 new ProductEntity()
                 {
-                    Id = -3,
+                    Id = 3,
                     Name = "Edison Model S",
                     Description = "DC Powah!",
                     Price = (decimal)123000.0,
