@@ -105,7 +105,7 @@ namespace BLL.Services
         {
             var categories = _categoryRepository.GetAll();
 
-            bool success = categories != null;
+            bool success = categories != null;// no Count() > 0 because return of 0 categories is ok for logic
 
             var result = new ResultContract<List<Category>>() { IsSuccessful = success };
 

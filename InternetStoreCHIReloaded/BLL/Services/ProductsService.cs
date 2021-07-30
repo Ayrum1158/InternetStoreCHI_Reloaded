@@ -54,7 +54,7 @@ namespace BLL.Services
             throw new NotImplementedException();
         }
 
-        public Task<ResultContract<List<Product>>> GetProductsAsync()
+        public Task<ResultContract<List<Product>>> GetProductsAsync()// make it use pagination
         {
             throw new NotImplementedException();
         }

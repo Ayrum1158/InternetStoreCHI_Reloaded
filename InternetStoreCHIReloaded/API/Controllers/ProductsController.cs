@@ -1,4 +1,5 @@
 ﻿using API.ViewModels;
+using AutoMapper;
 using BLL.Interfaces;
 using DAL.Entities;
 using DAL.Interfaces;
@@ -16,16 +17,20 @@ namespace API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductsService _productService;
+        private readonly IMapper _mapper;
 
-        public ProductsController()
+        public ProductsController(IProductsService productService, IMapper mapper)
         {
-
+            _productService = productService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<GenericResponse<IEnumerable<ProductViewModel>>> Get()// return all
+        public async Task<GenericResponse<IEnumerable<ProductViewModel>>> Get()// return all, add pagination next
         {
-            throw new NotImplementedException();
+            var result = _productService.GetProductsAsync();
+            var response = _mapper.Map<GenericResponse<IEnumerable<ProductViewModel>>>(result);
+            return response;
         }
 
         [HttpGet("{id}")]

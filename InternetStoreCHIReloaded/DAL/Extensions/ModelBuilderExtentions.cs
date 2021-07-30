@@ -47,7 +47,7 @@ namespace DAL.Extensions
                     Price = (decimal)1337.69,
                     CreatedDate = timeNow,
                     UpdatedDate = timeNow,
-                    CategoryId = -1
+                    CategoryId = 1
                 },
                 new ProductEntity()
                 {
@@ -57,7 +57,7 @@ namespace DAL.Extensions
                     Price = (decimal)484.74,
                     CreatedDate = timeNow,
                     UpdatedDate = timeNow,
-                    CategoryId = -2
+                    CategoryId = 2
                 },
                 new ProductEntity()
                 {
@@ -67,7 +67,7 @@ namespace DAL.Extensions
                     Price = (decimal)123000.0,
                     CreatedDate = timeNow,
                     UpdatedDate = timeNow,
-                    CategoryId = -3
+                    CategoryId = 3
                 });
         }
     }

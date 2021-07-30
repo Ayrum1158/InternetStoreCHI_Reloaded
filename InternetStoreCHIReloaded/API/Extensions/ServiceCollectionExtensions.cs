@@ -28,6 +28,11 @@ namespace API.Extensions
         {
             services.AddAutoMapper(cfg =>
             {
+                cfg.CreateMap<ResultContract, GenericResponse>().ReverseMap();
+                cfg.CreateMap(typeof(ResultContract<>), typeof(GenericResponse<>)).ReverseMap();
+
+                // Category mapping:
+
                 cfg.CreateMap<Category, CategoryViewModel>().ReverseMap();
 
                 cfg.CreateMap<CategoryEntity, Category>()
@@ -36,9 +41,11 @@ namespace API.Extensions
                 .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Description))
                 .ReverseMap();
 
-                cfg.CreateMap<ResultContract, GenericResponse>().ReverseMap();
+                // Product mapping:
 
-                cfg.CreateMap(typeof(ResultContract<>), typeof(GenericResponse<>)).ReverseMap();
+                cfg.CreateMap<Product, ProductViewModel>().ReverseMap();
+
+                cfg.CreateMap<ProductEntity, Product>().ReverseMap();
             },
             typeof(Startup));
         }
