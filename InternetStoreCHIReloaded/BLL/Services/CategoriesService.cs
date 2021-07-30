@@ -41,33 +41,28 @@ namespace BLL.Services
             return valid;
         }
 
-        private bool IsPresentInDb(string categoryName)
+        public async Task<ServiceResult<Category>> AddCategoryAsync(Category newCategory)
         {
-            return _categoryRepository.FindFirstOrDefault(c => c.Name == categoryName) != null;
-        }
-
-        public async Task<ResultContract<Category>> AddCategoryAsync(Category newCategory)
-        {
-            var result = new ResultContract<Category>();
+            var result = new ServiceResult<Category>();
 
             if (IsValid(newCategory))
             {
-                if (!IsPresentInDb(newCategory.CategoryName))
+                if (!_categoryRepository.IsPresentInDbAsync(ce => ce.Name == newCategory.CategoryName))
                 {
-                    var categoryEntity = _mapper.Map<CategoryEntity>(newCategory);
-                    categoryEntity.CreatedDate = categoryEntity.UpdatedDate = DateTime.UtcNow;
+                    var newCategoryEntity = _mapper.Map<CategoryEntity>(newCategory);
+                    newCategoryEntity.CreatedDate = newCategoryEntity.UpdatedDate = DateTime.UtcNow;
 
-                    bool success = await _categoryRepository.Add(categoryEntity);
+                    var dbResponse = await _categoryRepository.AddAsync(newCategoryEntity);
 
-                    if (success)
+                    if (dbResponse.IsSuccessful)
                     {
                         result.Message = "Category added successfully!";
-                        result.Data = _mapper.Map<Category>(categoryEntity);
+                        result.Data = _mapper.Map<Category>(dbResponse.Data);
                     }
                     else
                         result.Message = "Unexpected error occured during adding new category.";
 
-                    result.IsSuccessful = success;
+                    result.IsSuccessful = dbResponse.IsSuccessful;
                 }
                 else
                 {
@@ -84,12 +79,12 @@ namespace BLL.Services
             return result;
         }
 
-        public async Task<ResultContract> DeleteCategoryAsync(int id)
+        public async Task<ServiceResult> DeleteCategoryAsync(int id)
         {
-            var result = new ResultContract();
+            var result = new ServiceResult();
             bool success;
 
-            success = await _categoryRepository.Remove(id);
+            success = await _categoryRepository.RemoveAsync(id);
 
             result.IsSuccessful = success;
 
@@ -101,13 +96,13 @@ namespace BLL.Services
             return result;
         }
 
-        public async Task<ResultContract<List<Category>>> GetCategoriesAsync()
+        public async Task<ServiceResult<List<Category>>> GetCategoriesAsync()
         {
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryRepository.GetAllAsync();
 
             bool success = categories != null;// no Count() > 0 because return of 0 categories is ok for logic
 
-            var result = new ResultContract<List<Category>>() { IsSuccessful = success };
+            var result = new ServiceResult<List<Category>>() { IsSuccessful = success };
 
             if (success == true)
             {
@@ -125,16 +120,16 @@ namespace BLL.Services
             return result;
         }
 
-        public async Task<ResultContract<Category>> GetCategoryAsync(int id)
+        public async Task<ServiceResult<Category>> GetCategoryAsync(int id)
         {
-            var category = await _categoryRepository.FindFirstOrDefault(c => c.Id == id);
+            var category = await _categoryRepository.FindFirstOrDefaultAsync(c => c.Id == id);
 
             bool success = true;
 
             if (category == null)
                 success = false;
 
-            var result = new ResultContract<Category>() { IsSuccessful = success };
+            var result = new ServiceResult<Category>() { IsSuccessful = success };
 
             if (success)
             {
@@ -150,20 +145,27 @@ namespace BLL.Services
             return result;
         }
 
-        public async Task<ResultContract<Category>> UpdateCategoryAsync(Category updatedCategory)
+        public async Task<ServiceResult<Category>> UpdateCategoryAsync(Category updatedCategory)
         {
-            var result = new ResultContract<Category>();
+            var result = new ServiceResult<Category>();
 
             if (IsValid(updatedCategory))
             {
-                var category = await _categoryRepository.FindFirstOrDefault(c => c.Id == updatedCategory.CategoryId);
+                if(_categoryRepository.IsPresentInDbAsync(ce => ce.Name == updatedCategory.CategoryName))
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "Category with this name already exists.";
+                    return result;
+                }
+
+                var category = await _categoryRepository.FindFirstOrDefaultAsync(c => c.Id == updatedCategory.CategoryId);
 
                 //don't use automapper here because we don't want to accidentally change CreatedDate and UpdateDate
                 category.Name = updatedCategory.CategoryName;
                 category.Description = updatedCategory.CategoryDescription;
                 category.UpdatedDate = DateTime.UtcNow;
 
-                var success = await _categoryRepository.Update(category);
+                var success = await _categoryRepository.UpdateAsync(category);
 
                 result.IsSuccessful = success;
 

@@ -21,29 +21,46 @@ namespace DAL
             _fieldOfWork = dbcontext.Set<T>();
         }
 
-        public async Task<bool> Add(T entity)
+        public async Task<DbResponse<T>> AddAsync(T entity)
         {
-            _fieldOfWork.Add(entity);
+            _fieldOfWork.Add(entity);// don't think we need to use AddAsync
 
-            return await Save();
+            bool success = await SaveAsync();
+
+            return new DbResponse<T>()
+            {
+                IsSuccessful = success,
+                Data = entity
+            };
         }
 
-        public async Task<IEnumerable<T>> FindAll(Func<T, bool> predicate)
+        public async Task<IEnumerable<T>> FindAllAsync(Func<T, bool> predicate)
         {
-            return _fieldOfWork.Where(predicate).ToList();
+            return await Task.Run(() => _fieldOfWork.Where(predicate).ToList());
         }
 
-        public async Task<T> FindFirstOrDefault(Func<T, bool> predicate)
+        private T FindFirstOrDefault(Func<T, bool> predicate)// sync method
         {
             return _fieldOfWork.Where(predicate).FirstOrDefault();
         }
 
-        public async Task<IEnumerable<T>> GetAll()
+        public async Task<T> FindFirstOrDefaultAsync(Func<T, bool> predicate)
         {
-            return _fieldOfWork.ToList();
+            return await Task.Run(() => FindFirstOrDefault(predicate));
+            //return await Task.Run(() => _fieldOfWork.Where(predicate).FirstOrDefault());
         }
 
-        public async Task<bool> Remove(int entityId)
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _fieldOfWork.ToListAsync();
+        }
+
+        public bool IsPresentInDbAsync(Func<T, bool> predicate)
+        {
+            return FindFirstOrDefaultAsync(predicate) != null;
+        }
+
+        public async Task<bool> RemoveAsync(int entityId)
         {
             T entity = new T();
             entity.Id = entityId;
@@ -54,7 +71,7 @@ namespace DAL
             bool success = true;
             try
             {
-                success = await Save();
+                success = await SaveAsync();
             }
             catch (DbUpdateConcurrencyException)// when trying to delete with id not in Db
             {
@@ -64,16 +81,16 @@ namespace DAL
             return success;
         }
 
-        public async Task<bool> Update(T entity)
+        private async Task<bool> SaveAsync()
+        {
+            return await _dbcontext.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateAsync(T entity)
         {
             _fieldOfWork.Update(entity);
 
-            return await Save();
-        }
-
-        private async Task<bool> Save()
-        {
-            return _dbcontext.SaveChanges() > 0;
+            return await SaveAsync();
         }
     }
 }

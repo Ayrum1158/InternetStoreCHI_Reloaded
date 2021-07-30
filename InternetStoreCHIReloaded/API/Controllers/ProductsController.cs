@@ -1,5 +1,6 @@
 ﻿using API.ViewModels;
 using AutoMapper;
+using BLL.Contracts;
 using BLL.Interfaces;
 using DAL.Entities;
 using DAL.Interfaces;
@@ -28,7 +29,7 @@ namespace API.Controllers
         [HttpGet]
         public async Task<GenericResponse<IEnumerable<ProductViewModel>>> Get()// return all, add pagination next
         {
-            var result = _productService.GetProductsAsync();
+            var result = await _productService.GetProductsAsync();
             var response = _mapper.Map<GenericResponse<IEnumerable<ProductViewModel>>>(result);
             return response;
         }
@@ -36,25 +37,45 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<GenericResponse<ProductViewModel>> Get(int id)// return specific
         {
-            throw new NotImplementedException();
+            var result = await _productService.GetProductAsync(id);
+            var response = _mapper.Map<GenericResponse<ProductViewModel>>(result);
+            return response;
         }
 
         [HttpPost]// POST aka Create
-        public async Task<GenericResponse> Post([FromBody] ProductViewModel newCategory)
+        public async Task<GenericResponse<ProductViewModel>> Post([FromBody] ProductViewModel newProduct)
         {
-            throw new NotImplementedException();
+            var product = _mapper.Map<Product>(newProduct);
+            var result = await _productService.AddProductAsync(product);
+            var response = _mapper.Map<GenericResponse<ProductViewModel>>(result);
+            return response;
         }
 
         [HttpPut("{id}")]// PUT aka Update
-        public async Task<GenericResponse<ProductViewModel>> Put(int id, [FromBody] CategoryViewModel updatedCategory)
+        public async Task<GenericResponse<ProductViewModel>> Put(int id, [FromBody] ProductViewModel updatedProduct)
         {
-            throw new NotImplementedException();
+            if (id == updatedProduct.CategoryId)
+            {
+                var product = _mapper.Map<Product>(updatedProduct);
+                var result = await _productService.UpdateProductAsync(product);
+                var response = _mapper.Map<GenericResponse<ProductViewModel>>(result);
+                return response;
+            }
+            else
+            {
+                var response = new GenericResponse<ProductViewModel>();
+                response.IsSuccessful = false;
+                response.Message = "Ids in url and body do not match.";
+                return response;
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<GenericResponse> Delete(int id)
         {
-            throw new NotImplementedException();
+            var result = await _productService.DeleteProductAsync(id);
+            var response = _mapper.Map<GenericResponse>(result);
+            return response;
         }
     }
 }

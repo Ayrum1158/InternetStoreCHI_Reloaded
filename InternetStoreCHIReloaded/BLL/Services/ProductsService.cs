@@ -39,29 +39,137 @@ namespace BLL.Services
             return valid;
         }
 
-        public Task<ResultContract> AddProductAsync(Product newCategory)
+        public async Task<ServiceResult<Product>> AddProductAsync(Product newProduct)
         {
-            throw new NotImplementedException();
+            var result = new ServiceResult<Product>();
+
+            if(IsValid(newProduct))
+            {
+                if(_productRepository.IsPresentInDbAsync(pe => pe.Name == newProduct.Name))
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "Product with this name already exists";
+                    return result;
+                }
+
+                newProduct.CreatedDate = newProduct.UpdatedDate = DateTime.UtcNow;
+
+                var entity = _mapper.Map<ProductEntity>(newProduct);
+
+                var dbResponse = await _productRepository.AddAsync(entity);
+
+                result.IsSuccessful = dbResponse.IsSuccessful;
+
+                if(dbResponse.IsSuccessful)
+                {
+                    result.Message = "Product was added successfully!";
+                    result.Data = _mapper.Map<Product>(entity);
+                }
+                else
+                {
+                    result.Message = "No changes were made.";
+                }
+            }
+            else
+            {
+                result.IsSuccessful = false;
+                result.Message = "Fields are not proper.";
+            }
+
+            return result;
         }
 
-        public Task<ResultContract> DeleteProductAsync(int id)
+        public async Task<ServiceResult> DeleteProductAsync(int id)
         {
-            throw new NotImplementedException();
+            bool success = await _productRepository.RemoveAsync(id);
+
+            var result = new ServiceResult() { IsSuccessful = success };
+
+            if(success)
+            {
+                result.Message = "Product delete successful!";
+            }
+            else
+            {
+                result.Message = "No changes were made.";
+            }
+
+            return result;
         }
 
-        public Task<ResultContract<Product>> GetProductAsync(int id)
+        public async Task<ServiceResult<Product>> GetProductAsync(int id)
         {
-            throw new NotImplementedException();
+            var product = await _productRepository.FindFirstOrDefaultAsync(pe => pe.Id == id);
+
+            var result = new ServiceResult<Product>();
+
+            if(product != null)
+            {
+                result.IsSuccessful = true;
+                result.Message = "Product retrieval success!";
+                result.Data = _mapper.Map<Product>(product);
+            }
+            else
+            {
+                result.IsSuccessful = false;
+                result.Message = "Product was not found.";
+            }
+
+            return result;
         }
 
-        public Task<ResultContract<List<Product>>> GetProductsAsync()// make it use pagination
+        public async Task<ServiceResult<List<Product>>> GetProductsAsync()// make it use pagination
         {
-            throw new NotImplementedException();
+            var products = await _productRepository.GetAllAsync();
+
+            var result = new ServiceResult<List<Product>>()
+            {
+                IsSuccessful = true,
+                Data = _mapper.Map<List<Product>>(products),
+                Message = "Categories retrieval successful!"
+            };
+
+            return result;
         }
 
-        public Task<ResultContract<Product>> UpdateProductAsync(Product newCategoryInfo)
+        public async Task<ServiceResult<Product>> UpdateProductAsync(Product newProductInfo)
         {
-            throw new NotImplementedException();
+            var result = new ServiceResult<Product>();
+
+            if(IsValid(newProductInfo))
+            {
+                if (_productRepository.IsPresentInDbAsync(pe => pe.Name == newProductInfo.Name))
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "Product with this name already exists.";
+                    return result;
+                }
+
+                newProductInfo.UpdatedDate = DateTime.UtcNow;
+
+                var productEntity = _mapper.Map<ProductEntity>(newProductInfo);
+
+                bool success = await _productRepository.UpdateAsync(productEntity);
+
+                if(success)
+                {
+                    result.IsSuccessful = true;
+                    result.Message = "Product update successful!";
+                    result.Data = newProductInfo;
+                }
+                else
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "No changes were made.";
+                }
+            }
+            else
+            {
+                result.IsSuccessful = false;
+                result.Message = "Fields are not proper.";
+            }
+
+            return result;
         }
     }
 }

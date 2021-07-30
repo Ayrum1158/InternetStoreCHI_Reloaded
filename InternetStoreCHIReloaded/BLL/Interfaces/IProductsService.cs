@@ -8,10 +8,10 @@ namespace BLL.Interfaces
 {
     public interface IProductsService
     {
-        Task<ResultContract> AddProductAsync(Product newCategory);
-        Task<ResultContract> DeleteProductAsync(int id);
-        Task<ResultContract<Product>> GetProductAsync(int id);
-        Task<ResultContract<List<Product>>> GetProductsAsync();
-        Task<ResultContract<Product>> UpdateProductAsync(Product newCategoryInfo);
+        Task<ServiceResult<Product>> AddProductAsync(Product newProduct);
+        Task<ServiceResult> DeleteProductAsync(int id);
+        Task<ServiceResult<Product>> GetProductAsync(int id);
+        Task<ServiceResult<List<Product>>> GetProductsAsync();
+        Task<ServiceResult<Product>> UpdateProductAsync(Product newProductInfo);
     }
 }

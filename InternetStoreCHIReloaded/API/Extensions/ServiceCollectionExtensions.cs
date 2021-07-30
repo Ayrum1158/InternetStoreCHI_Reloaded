@@ -28,8 +28,8 @@ namespace API.Extensions
         {
             services.AddAutoMapper(cfg =>
             {
-                cfg.CreateMap<ResultContract, GenericResponse>().ReverseMap();
-                cfg.CreateMap(typeof(ResultContract<>), typeof(GenericResponse<>)).ReverseMap();
+                cfg.CreateMap<ServiceResult, GenericResponse>().ReverseMap();
+                cfg.CreateMap(typeof(ServiceResult<>), typeof(GenericResponse<>)).ReverseMap();
 
                 // Category mapping:
 
