@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace DAL
 {
@@ -20,29 +21,29 @@ namespace DAL
             _fieldOfWork = dbcontext.Set<T>();
         }
 
-        public bool Add(T entity)
+        public async Task<bool> Add(T entity)
         {
             _fieldOfWork.Add(entity);
 
-            return Save();
+            return await Save();
         }
 
-        public IEnumerable<T> FindAll(Func<T, bool> predicate)
+        public async Task<IEnumerable<T>> FindAll(Func<T, bool> predicate)
         {
             return _fieldOfWork.Where(predicate).ToList();
         }
 
-        public T FindFirstOrDefault(Func<T, bool> predicate)
+        public async Task<T> FindFirstOrDefault(Func<T, bool> predicate)
         {
             return _fieldOfWork.Where(predicate).FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAll()
         {
             return _fieldOfWork.ToList();
         }
 
-        public bool Remove(int entityId)
+        public async Task<bool> Remove(int entityId)
         {
             T entity = new T();
             entity.Id = entityId;
@@ -53,7 +54,7 @@ namespace DAL
             bool success = true;
             try
             {
-                success = Save();
+                success = await Save();
             }
             catch (DbUpdateConcurrencyException)// when trying to delete with id not in Db
             {
@@ -63,14 +64,14 @@ namespace DAL
             return success;
         }
 
-        public bool Update(T entity)
+        public async Task<bool> Update(T entity)
         {
             _fieldOfWork.Update(entity);
 
-            return Save();
+            return await Save();
         }
 
-        private bool Save()
+        private async Task<bool> Save()
         {
             return _dbcontext.SaveChanges() > 0;
         }

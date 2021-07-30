@@ -57,7 +57,7 @@ namespace BLL.Services
                     var categoryEntity = _mapper.Map<CategoryEntity>(newCategory);
                     categoryEntity.CreatedDate = categoryEntity.UpdatedDate = DateTime.UtcNow;
 
-                    bool success = _categoryRepository.Add(categoryEntity);
+                    bool success = await _categoryRepository.Add(categoryEntity);
 
                     if (success)
                     {
@@ -89,7 +89,7 @@ namespace BLL.Services
             var result = new ResultContract();
             bool success;
 
-            success = _categoryRepository.Remove(id);
+            success = await _categoryRepository.Remove(id);
 
             result.IsSuccessful = success;
 
@@ -103,7 +103,7 @@ namespace BLL.Services
 
         public async Task<ResultContract<List<Category>>> GetCategoriesAsync()
         {
-            var categories = _categoryRepository.GetAll();
+            var categories = await _categoryRepository.GetAll();
 
             bool success = categories != null;// no Count() > 0 because return of 0 categories is ok for logic
 
@@ -127,7 +127,7 @@ namespace BLL.Services
 
         public async Task<ResultContract<Category>> GetCategoryAsync(int id)
         {
-            var category = _categoryRepository.FindFirstOrDefault(c => c.Id == id);
+            var category = await _categoryRepository.FindFirstOrDefault(c => c.Id == id);
 
             bool success = true;
 
@@ -156,14 +156,14 @@ namespace BLL.Services
 
             if (IsValid(updatedCategory))
             {
-                var category = _categoryRepository.FindFirstOrDefault(c => c.Id == updatedCategory.CategoryId);
+                var category = await _categoryRepository.FindFirstOrDefault(c => c.Id == updatedCategory.CategoryId);
 
                 //don't use automapper here because we don't want to accidentally change CreatedDate and UpdateDate
                 category.Name = updatedCategory.CategoryName;
                 category.Description = updatedCategory.CategoryDescription;
                 category.UpdatedDate = DateTime.UtcNow;
 
-                var success = _categoryRepository.Update(category);
+                var success = await _categoryRepository.Update(category);
 
                 result.IsSuccessful = success;
 
