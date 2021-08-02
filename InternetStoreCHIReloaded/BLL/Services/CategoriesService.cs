@@ -47,28 +47,27 @@ namespace BLL.Services
 
             if (IsValid(newCategory))
             {
-                if (!_categoryRepository.IsPresentInDbAsync(ce => ce.Name == newCategory.CategoryName))
-                {
-                    var newCategoryEntity = _mapper.Map<CategoryEntity>(newCategory);
-                    newCategoryEntity.CreatedDate = newCategoryEntity.UpdatedDate = DateTime.UtcNow;
-
-                    var dbResponse = await _categoryRepository.AddAsync(newCategoryEntity);
-
-                    if (dbResponse.IsSuccessful)
-                    {
-                        result.Message = "Category added successfully!";
-                        result.Data = _mapper.Map<Category>(dbResponse.Data);
-                    }
-                    else
-                        result.Message = "Unexpected error occured during adding new category.";
-
-                    result.IsSuccessful = dbResponse.IsSuccessful;
-                }
-                else
+                if (!await _categoryRepository.IsPresentInDbAsync(ce => ce.Name == newCategory.CategoryName))
                 {
                     result.IsSuccessful = false;
                     result.Message = "Category name is already in database.";
+                    return result;
                 }
+
+                var newCategoryEntity = _mapper.Map<CategoryEntity>(newCategory);
+                newCategoryEntity.CreatedDate = newCategoryEntity.UpdatedDate = DateTime.UtcNow;
+
+                var dbResponse = await _categoryRepository.AddAsync(newCategoryEntity);
+
+                if (dbResponse.IsSuccessful)
+                {
+                    result.Message = "Category added successfully!";
+                    result.Data = _mapper.Map<Category>(dbResponse.Data);
+                }
+                else
+                    result.Message = "Unexpected error occured during adding new category.";
+
+                result.IsSuccessful = dbResponse.IsSuccessful;
             }
             else
             {
@@ -151,7 +150,7 @@ namespace BLL.Services
 
             if (IsValid(updatedCategory))
             {
-                if(_categoryRepository.IsPresentInDbAsync(ce => ce.Name == updatedCategory.CategoryName))
+                if (await _categoryRepository.IsPresentInDbAsync(ce => ce.Name == updatedCategory.CategoryName))
                 {
                     result.IsSuccessful = false;
                     result.Message = "Category with this name already exists.";

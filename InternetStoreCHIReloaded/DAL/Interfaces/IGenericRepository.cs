@@ -1,6 +1,7 @@
 ﻿using DAL.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,9 +11,9 @@ namespace DAL.Interfaces
     {
         Task<DbResponse<T>> AddAsync(T entity);
         Task<IEnumerable<T>> FindAllAsync(Func<T, bool> predicate);
-        Task<T> FindFirstOrDefaultAsync(Func<T, bool> predicate);
+        Task<T> FindFirstOrDefaultAsync(Expression<Func<T, bool>> expression);
         Task<IEnumerable<T>> GetAllAsync();
-        bool IsPresentInDbAsync(Func<T, bool> predicate);
+        Task<bool> IsPresentInDbAsync(Expression<Func<T, bool>> expression);
         Task<bool> RemoveAsync(int entityId);
         Task<bool> UpdateAsync(T entity);
     }

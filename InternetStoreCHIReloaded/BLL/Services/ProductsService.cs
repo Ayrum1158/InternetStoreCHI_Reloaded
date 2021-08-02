@@ -45,7 +45,7 @@ namespace BLL.Services
 
             if(IsValid(newProduct))
             {
-                if(_productRepository.IsPresentInDbAsync(pe => pe.Name == newProduct.Name))
+                if(await _productRepository.IsPresentInDbAsync(pe => pe.Name == newProduct.Name))
                 {
                     result.IsSuccessful = false;
                     result.Message = "Product with this name already exists";
@@ -138,7 +138,7 @@ namespace BLL.Services
 
             if(IsValid(newProductInfo))
             {
-                if (_productRepository.IsPresentInDbAsync(pe => pe.Name == newProductInfo.Name))
+                if (await _productRepository.IsPresentInDbAsync(pe => pe.Name == newProductInfo.Name))
                 {
                     result.IsSuccessful = false;
                     result.Message = "Product with this name already exists.";

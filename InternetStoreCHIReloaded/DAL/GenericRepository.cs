@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,15 +40,9 @@ namespace DAL
             return await Task.Run(() => _fieldOfWork.Where(predicate).ToList());
         }
 
-        private T FindFirstOrDefault(Func<T, bool> predicate)// sync method
+        public async Task<T> FindFirstOrDefaultAsync(Expression<Func<T, bool>> expression)
         {
-            return _fieldOfWork.Where(predicate).FirstOrDefault();
-        }
-
-        public async Task<T> FindFirstOrDefaultAsync(Func<T, bool> predicate)
-        {
-            return await Task.Run(() => FindFirstOrDefault(predicate));
-            //return await Task.Run(() => _fieldOfWork.Where(predicate).FirstOrDefault());
+            return await _fieldOfWork.FirstOrDefaultAsync(expression);
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
@@ -55,9 +50,10 @@ namespace DAL
             return await _fieldOfWork.ToListAsync();
         }
 
-        public bool IsPresentInDbAsync(Func<T, bool> predicate)
+        public async Task<bool> IsPresentInDbAsync(Expression<Func<T, bool>> expression)
         {
-            return FindFirstOrDefaultAsync(predicate) != null;
+            var res = (await FindFirstOrDefaultAsync(expression)) != null;
+            return res;
         }
 
         public async Task<bool> RemoveAsync(int entityId)
