@@ -13,10 +13,10 @@ namespace BLL.Services
 {
     public class ProductsService : IProductsService
     {
-        private readonly IGenericRepository<ProductEntity> _productRepository;
+        private readonly IProductsRepository _productRepository;
         private readonly IMapper _mapper;
 
-        public ProductsService(IGenericRepository<ProductEntity> productRepository, IMapper mapper)
+        public ProductsService(IProductsRepository productRepository, IMapper mapper)
         {
             _productRepository = productRepository;
             _mapper = mapper;
@@ -126,7 +126,7 @@ namespace BLL.Services
             {
                 IsSuccessful = true,
                 Data = _mapper.Map<List<Product>>(products),
-                Message = "Categories retrieval successful!"
+                Message = "Products retrieval successful!"
             };
 
             return result;

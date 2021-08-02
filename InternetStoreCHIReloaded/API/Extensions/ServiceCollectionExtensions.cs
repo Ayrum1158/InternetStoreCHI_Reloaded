@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using DAL.Repositories;
 
 namespace API.Extensions
 {
@@ -22,6 +23,8 @@ namespace API.Extensions
         public static void ConfigureRepositories(this IServiceCollection services)
         {
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+            services.AddTransient<IProductsRepository, ProductsRepository>();
         }
 
         public static void ConfigureAutomapper(this IServiceCollection services)

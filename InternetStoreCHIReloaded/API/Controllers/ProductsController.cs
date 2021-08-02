@@ -54,7 +54,7 @@ namespace API.Controllers
         [HttpPut("{id}")]// PUT aka Update
         public async Task<GenericResponse<ProductViewModel>> Put(int id, [FromBody] ProductViewModel updatedProduct)
         {
-            if (id == updatedProduct.CategoryId)
+            if (id == updatedProduct.Id)
             {
                 var product = _mapper.Map<Product>(updatedProduct);
                 var result = await _productService.UpdateProductAsync(product);
