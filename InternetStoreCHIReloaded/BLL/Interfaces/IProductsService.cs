@@ -12,6 +12,10 @@ namespace BLL.Interfaces
         Task<ServiceResult> DeleteProductAsync(int id);
         Task<ServiceResult<Product>> GetProductAsync(int id);
         Task<ServiceResult<List<Product>>> GetProductsAsync();
+        Task<ServiceResult<List<Product>>> GetProductsFilteredAsync(
+            int pageSize,
+            int page,
+            ProductsFilter filter);
         Task<ServiceResult<Product>> UpdateProductAsync(Product newProductInfo);
     }
 }

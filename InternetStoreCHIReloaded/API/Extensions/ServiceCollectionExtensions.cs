@@ -49,6 +49,8 @@ namespace API.Extensions
                 cfg.CreateMap<Product, ProductViewModel>().ReverseMap();
 
                 cfg.CreateMap<ProductEntity, Product>().ReverseMap();
+
+                cfg.CreateMap<ProductsFilter, ProductsFilterViewModel>().ReverseMap();
             },
             typeof(Startup));
         }

@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using BLL.Contracts;
+using BLL.Extentions;
 using BLL.Interfaces;
 using DAL.Entities;
 using DAL.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -43,9 +45,9 @@ namespace BLL.Services
         {
             var result = new ServiceResult<Product>();
 
-            if(IsValid(newProduct))
+            if (IsValid(newProduct))
             {
-                if(await _productRepository.IsPresentInDbAsync(pe => pe.Name == newProduct.Name))
+                if (await _productRepository.IsPresentInDbAsync(pe => pe.Name == newProduct.Name))
                 {
                     result.IsSuccessful = false;
                     result.Message = "Product with this name already exists";
@@ -60,7 +62,7 @@ namespace BLL.Services
 
                 result.IsSuccessful = dbResponse.IsSuccessful;
 
-                if(dbResponse.IsSuccessful)
+                if (dbResponse.IsSuccessful)
                 {
                     result.Message = "Product was added successfully!";
                     result.Data = _mapper.Map<Product>(entity);
@@ -85,7 +87,7 @@ namespace BLL.Services
 
             var result = new ServiceResult() { IsSuccessful = success };
 
-            if(success)
+            if (success)
             {
                 result.Message = "Product delete successful!";
             }
@@ -103,7 +105,7 @@ namespace BLL.Services
 
             var result = new ServiceResult<Product>();
 
-            if(product != null)
+            if (product != null)
             {
                 result.IsSuccessful = true;
                 result.Message = "Product retrieval success!";
@@ -118,7 +120,7 @@ namespace BLL.Services
             return result;
         }
 
-        public async Task<ServiceResult<List<Product>>> GetProductsAsync()// make it use pagination
+        public async Task<ServiceResult<List<Product>>> GetProductsAsync()// when method with pagination will be implemented, this method should be erased
         {
             var products = await _productRepository.GetAllAsync();
 
@@ -132,11 +134,53 @@ namespace BLL.Services
             return result;
         }
 
+        public async Task<ServiceResult<List<Product>>> GetProductsFilteredAsync(
+            int pageSize,
+            int page,
+            ProductsFilter filter)
+        {
+            var result = new ServiceResult<List<Product>>();
+
+            if (filter.FromPrice != null && filter.ToPrice != null)
+                if (filter.FromPrice > filter.ToPrice)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "FromPrice can't be bigger then ToPrice";
+                    return result;
+                }
+
+            Expression<Func<ProductEntity, bool>> whereExpr = ep => true;
+
+            if (filter.CategoryId != null)
+                whereExpr = whereExpr.And((pe) => pe.CategoryId == filter.CategoryId);
+
+            if (filter.FromPrice != null)
+                whereExpr = whereExpr.And((pe) => pe.Price >= filter.FromPrice);
+
+            if (filter.ToPrice != null)
+                whereExpr = whereExpr.And((pe) => pe.Price <= filter.ToPrice);
+
+            var prop = typeof(ProductEntity).GetProperty(filter.SortPropName);
+
+            IEnumerable<ProductEntity> dbResponse = await _productRepository.FindSortAndPaginateAll(
+                whereExpr,
+                p => prop.GetValue(p, null),
+                filter.SortDirection,
+                pageSize,
+                page);
+
+            result.IsSuccessful = true;
+            result.Message = "Products retrieval success!";
+            result.Data = _mapper.Map<List<Product>>(dbResponse);
+
+            return result;
+        }
+
         public async Task<ServiceResult<Product>> UpdateProductAsync(Product newProductInfo)
         {
             var result = new ServiceResult<Product>();
 
-            if(IsValid(newProductInfo))
+            if (IsValid(newProductInfo))
             {
                 if (await _productRepository.IsPresentInDbAsync(pe => pe.Name == newProductInfo.Name))
                 {
@@ -151,7 +195,7 @@ namespace BLL.Services
 
                 bool success = await _productRepository.UpdateAsync(productEntity);
 
-                if(success)
+                if (success)
                 {
                     result.IsSuccessful = true;
                     result.Message = "Product update successful!";

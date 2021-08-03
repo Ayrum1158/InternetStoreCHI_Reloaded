@@ -24,7 +24,7 @@ namespace DAL.Repositories
 
         public virtual async Task<DbResponse<T>> AddAsync(T entity)
         {
-            _fieldOfWork.Add(entity);// don't think we need to use AddAsync
+            await _fieldOfWork.AddAsync(entity);
 
             bool success = await SaveAsync();
 

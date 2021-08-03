@@ -6,6 +6,7 @@ using DAL.Entities;
 using DAL.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,18 @@ namespace API.Controllers
         {
             var result = await _productService.GetProductAsync(id);
             var response = _mapper.Map<GenericResponse<ProductViewModel>>(result);
+            return response;
+        }
+
+        [HttpGet("{pageSize}/{page}/{filterString}")]// filter should be json object corresponding to ProductsFilterViewModel
+        public async Task<GenericResponse<List<ProductViewModel>>> Get(int pageSize, int page, string filterString)
+        {
+            var filter = _mapper.Map<ProductsFilter>(JsonConvert.DeserializeObject<ProductsFilterViewModel>(filterString));
+
+            var result = await _productService.GetProductsFilteredAsync(pageSize, page, filter);
+
+            var response = _mapper.Map<GenericResponse<List<ProductViewModel>>>(result);
+
             return response;
         }
 
