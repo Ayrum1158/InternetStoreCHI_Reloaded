@@ -16,20 +16,8 @@ namespace DAL.Repositories
 
         public override async Task<bool> UpdateAsync(ProductEntity entity)
         {
-            var updatedEntity = new ProductEntity()
-            {
-                Id = entity.Id,
-                CategoryId = entity.CategoryId,
-                UpdatedDate = entity.UpdatedDate,
-                Name = entity.Name,
-                Description = entity.Description,
-                Price = entity.Price
-            };
-
-            _fieldOfWork.Attach(updatedEntity).Property(e => e.CreatedDate).IsModified = false;
-            var saveTask = SaveAsync();
-            entity = updatedEntity;// if we will use referenced entity further
-            return await saveTask;
+            _fieldOfWork.Update(entity).Property(pe => pe.CreatedDate).IsModified = false;
+            return await SaveAsync();
         }
     }
 }
