@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using BLL.Contracts;
-using BLL.Extentions;
 using BLL.Interfaces;
 using DAL.Entities;
 using DAL.Interfaces;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -149,23 +149,10 @@ namespace BLL.Services
                     return result;
                 }
 
-            Expression<Func<ProductEntity, bool>> whereExpr = ep => true;
-
-            if (filter.CategoryId != null)
-                whereExpr = whereExpr.And((pe) => pe.CategoryId == filter.CategoryId);
-
-            if (filter.FromPrice != null)
-                whereExpr = whereExpr.And((pe) => pe.Price >= filter.FromPrice);
-
-            if (filter.ToPrice != null)
-                whereExpr = whereExpr.And((pe) => pe.Price <= filter.ToPrice);
-
-            var prop = typeof(ProductEntity).GetProperty(filter.SortPropName);
+            var requestFilter = _mapper.Map<ProductRequestFilter>(filter);
 
             IEnumerable<ProductEntity> dbResponse = await _productRepository.FindSortAndPaginateAll(
-                whereExpr,
-                p => prop.GetValue(p, null),
-                filter.SortDirection,
+                requestFilter,
                 pageSize,
                 page);
 

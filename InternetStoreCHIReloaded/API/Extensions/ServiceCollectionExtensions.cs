@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DAL.Repositories;
+using DAL.Models;
 
 namespace API.Extensions
 {
@@ -51,6 +52,7 @@ namespace API.Extensions
                 cfg.CreateMap<ProductEntity, Product>().ReverseMap();
 
                 cfg.CreateMap<ProductsFilter, ProductsFilterViewModel>().ReverseMap();
+                cfg.CreateMap<ProductsFilter, ProductRequestFilter>().ReverseMap();
             },
             typeof(Startup));
         }

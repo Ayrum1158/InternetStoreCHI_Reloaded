@@ -1,6 +1,7 @@
 ﻿using DAL.Entities;
 using DAL.Enums;
 using DAL.Interfaces;
+using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -23,35 +24,37 @@ namespace DAL.Repositories
         }
 
         public async Task<IEnumerable<ProductEntity>> FindSortAndPaginateAll(
-            Expression<Func<ProductEntity, bool>> whereExpr,
-            Func<ProductEntity, object> sortByFunc,
-            SortDirection sortDirection,
+            ProductRequestFilter filter,
             int pageSize,
             int page)
         {
-            IEnumerable<ProductEntity> products = null;
+            var productsIQ = _dbcontext.Products.AsQueryable();
 
-            var findTask = Task.Run(() =>
+            if (filter.CategoryId != null)
+                productsIQ = productsIQ.Where((pe) => pe.CategoryId == filter.CategoryId);
+            if (filter.FromPrice != null)
+                productsIQ = productsIQ.Where((pe) => pe.Price >= filter.FromPrice);
+            if (filter.ToPrice != null)
+                productsIQ = productsIQ.Where((pe) => pe.Price <= filter.ToPrice);
+
+            var prop = typeof(ProductEntity).GetProperty(filter.SortPropName);
+            Func<ProductEntity, object> sortByFunc = p => prop.GetValue(p, null);
+
+            switch (filter.SortDirection)
             {
-                products = _fieldOfWork.Where(whereExpr);
+                case SortDirection.Ascending:
+                    productsIQ = productsIQ.OrderBy(sortByFunc).AsQueryable();
+                    break;
+                case SortDirection.Descending:
+                    productsIQ = productsIQ.OrderByDescending(sortByFunc).AsQueryable();
+                    break;
+                default:// SortDirection.None
+                    break;
+            }
 
-                switch (sortDirection)
-                {
-                    case SortDirection.Ascending:
-                        products = products.OrderBy(sortByFunc);
-                        break;
-                    case SortDirection.Descending:
-                        products = products.OrderByDescending(sortByFunc);
-                        break;
-                    default:// SortHow.None
-                        break;
-                }
+            int from = pageSize * (page - 1);
 
-                int from = pageSize * (page - 1);
-                products = products.Skip(from).Take(pageSize).ToList();
-            });
-
-            await findTask;
+            var products = await productsIQ.Skip(from).Take(pageSize).ToListAsync();
 
             return products;
         }

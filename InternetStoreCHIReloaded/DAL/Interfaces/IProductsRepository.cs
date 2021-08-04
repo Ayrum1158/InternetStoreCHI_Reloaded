@@ -1,5 +1,5 @@
 ﻿using DAL.Entities;
-using DAL.Enums;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -11,9 +11,7 @@ namespace DAL.Interfaces
     public interface IProductsRepository : IGenericRepository<ProductEntity>
     {
         Task<IEnumerable<ProductEntity>> FindSortAndPaginateAll(
-            Expression<Func<ProductEntity, bool>> whereExpr,
-            Func<ProductEntity, object> sortByFunc,
-            SortDirection sortDirection,
+            ProductRequestFilter filter,
             int pageSize,
             int page);
     }
