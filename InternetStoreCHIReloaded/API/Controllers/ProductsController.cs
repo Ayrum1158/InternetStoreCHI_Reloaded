@@ -43,10 +43,10 @@ namespace API.Controllers
             return response;
         }
 
-        [HttpGet("{pageSize}/{page}/{filterString}")]// filter should be json object corresponding to ProductsFilterViewModel
-        public async Task<GenericResponse<List<ProductViewModel>>> Get(int pageSize, int page, string filterString)
+        [HttpPost("{pageSize}/{page}")]// filter should be json object corresponding to ProductsFilterViewModel
+        public async Task<GenericResponse<List<ProductViewModel>>> Post(int pageSize, int page, ProductsFilterViewModel filterVM)
         {
-            var filter = _mapper.Map<ProductsFilter>(JsonConvert.DeserializeObject<ProductsFilterViewModel>(filterString));
+            var filter = _mapper.Map<ProductsFilter>(filterVM);
 
             var result = await _productService.GetProductsFilteredAsync(pageSize, page, filter);
 

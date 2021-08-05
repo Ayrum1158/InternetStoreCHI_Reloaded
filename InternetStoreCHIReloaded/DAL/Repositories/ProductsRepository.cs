@@ -28,7 +28,7 @@ namespace DAL.Repositories
             int pageSize,
             int page)
         {
-            var productsIQ = _dbcontext.Products.AsQueryable();
+            var productsIQ = _fieldOfWork.AsQueryable();
 
             if (filter.CategoryId != null)
                 productsIQ = productsIQ.Where((pe) => pe.CategoryId == filter.CategoryId);
@@ -38,23 +38,30 @@ namespace DAL.Repositories
                 productsIQ = productsIQ.Where((pe) => pe.Price <= filter.ToPrice);
 
             var prop = typeof(ProductEntity).GetProperty(filter.SortPropName);
-            Func<ProductEntity, object> sortByFunc = p => prop.GetValue(p, null);
+            Func<ProductEntity, object> sortByFunc = p => prop.GetValue(p, null);// func to get property
+
+            List<ProductEntity> products = null;
+
+            Task queryTask = Task.Run(()=> { });// don't want to catch exception on next await, so empty task
 
             switch (filter.SortDirection)
             {
                 case SortDirection.Ascending:
-                    productsIQ = productsIQ.OrderBy(sortByFunc).AsQueryable();
+                    queryTask = Task.Run(() => products = productsIQ.OrderBy(sortByFunc).ToList());
                     break;
                 case SortDirection.Descending:
-                    productsIQ = productsIQ.OrderByDescending(sortByFunc).AsQueryable();
+                    queryTask = Task.Run(() => products = productsIQ.OrderByDescending(sortByFunc).ToList());
                     break;
                 default:// SortDirection.None
+                    products = await productsIQ.ToListAsync();
                     break;
             }
 
             int from = pageSize * (page - 1);
 
-            var products = await productsIQ.Skip(from).Take(pageSize).ToListAsync();
+            await queryTask;
+
+            products = products.Skip(from).Take(pageSize).ToList();
 
             return products;
         }
