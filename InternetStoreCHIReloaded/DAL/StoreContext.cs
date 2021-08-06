@@ -1,6 +1,7 @@
 ﻿using DAL.ConfigPOCOs;
 using DAL.Entities;
 using DAL.Extensions;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
@@ -9,7 +10,7 @@ using System.Text;
 
 namespace DAL
 {
-    public class StoreContext : DbContext
+    public class StoreContext : IdentityDbContext<UserEntity>
     {
         private readonly IOptionsMonitor<DBConfig> _dbConfig;
 
@@ -34,6 +35,8 @@ namespace DAL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Name).HasMaxLength(20);
             modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Description).HasMaxLength(200);
 

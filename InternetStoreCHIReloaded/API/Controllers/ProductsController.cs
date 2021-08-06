@@ -1,6 +1,6 @@
 ﻿using API.ViewModels;
 using AutoMapper;
-using BLL.Contracts;
+using BLL.Models;
 using BLL.Interfaces;
 using DAL.Entities;
 using DAL.Interfaces;

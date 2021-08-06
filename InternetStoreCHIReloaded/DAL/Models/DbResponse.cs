@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BLL.Contracts
+namespace DAL.Models
 {
-    public class ServiceResult
+    public class DbResponse
     {
         public bool IsSuccessful { get; set; }
         public string Message { get; set; }
     }
 
-    public class ServiceResult<T> : ServiceResult
+    public class DbResponse<T> : DbResponse
     {
         public T Data { get; set; }
     }

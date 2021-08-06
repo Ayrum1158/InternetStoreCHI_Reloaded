@@ -1,9 +1,13 @@
 using API.Extensions;
 using BLL.Interfaces;
+using BLL.Models;
 using BLL.Services;
+using DAL;
 using DAL.ConfigPOCOs;
+using DAL.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -31,6 +35,9 @@ namespace API
             //    options.Cookie.IsEssential = true;
             //});
 
+            services.AddIdentity<UserEntity, IdentityRole>()
+                .AddEntityFrameworkStores<StoreContext>();
+
             var dbConfigSection = Configuration.GetSection(nameof(DBConfig));
             services.Configure<DBConfig>(dbConfigSection);// add DBConfig to IOptionsManager
 
@@ -43,6 +50,10 @@ namespace API
 
             services.AddTransient<ICategoriesService, CategoriesService>();
             services.AddTransient<IProductsService, ProductsService>();
+            services.AddTransient<IUsersService, UsersService>();
+
+            services.AddTransient<UserManager<UserEntity>>();
+            services.AddTransient<SignInManager<UserEntity>>();
 
             services.AddControllers();
 
@@ -52,6 +63,8 @@ namespace API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseAuthentication();
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
