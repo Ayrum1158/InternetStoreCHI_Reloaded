@@ -28,7 +28,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<GenericResponse<IEnumerable<ProductViewModel>>> Get()// return all, add pagination next
+        public async Task<GenericResponse<IEnumerable<ProductViewModel>>> Get()
         {
             var result = await _productService.GetProductsAsync();
             var response = _mapper.Map<GenericResponse<IEnumerable<ProductViewModel>>>(result);
@@ -36,14 +36,14 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<GenericResponse<ProductViewModel>> Get(int id)// return specific
+        public async Task<GenericResponse<ProductViewModel>> Get(int id)
         {
             var result = await _productService.GetProductAsync(id);
             var response = _mapper.Map<GenericResponse<ProductViewModel>>(result);
             return response;
         }
 
-        [HttpPost("{pageSize}/{page}")]// filter should be json object corresponding to ProductsFilterViewModel
+        [HttpPost("{pageSize}/{page}")]
         public async Task<GenericResponse<List<ProductViewModel>>> Post(int pageSize, int page, ProductsFilterViewModel filterVM)
         {
             var filter = _mapper.Map<ProductsFilter>(filterVM);
@@ -55,7 +55,7 @@ namespace API.Controllers
             return response;
         }
 
-        [HttpPost]// POST aka Create
+        [HttpPost]
         public async Task<GenericResponse<ProductViewModel>> Post([FromBody] ProductViewModel newProduct)
         {
             var product = _mapper.Map<Product>(newProduct);
@@ -64,7 +64,7 @@ namespace API.Controllers
             return response;
         }
 
-        [HttpPut("{id}")]// PUT aka Update
+        [HttpPut("{id}")]
         public async Task<GenericResponse<ProductViewModel>> Put(int id, [FromBody] ProductViewModel updatedProduct)
         {
             if (id == updatedProduct.Id)
