@@ -15,14 +15,17 @@ namespace BLL.Services
     public class UsersService : IUsersService
     {
         private readonly IMapper _mapper;
-        private readonly IUsersRepository _usersRepository; 
+        private readonly IUsersRepository _usersRepository;
+        private readonly SignInManager<UserEntity> _signInManager;
 
         public UsersService(
             IMapper mapper,
-            IUsersRepository usersRepository)
+            IUsersRepository usersRepository,
+            SignInManager<UserEntity> signInManager)
         {
             _mapper = mapper;
             _usersRepository = usersRepository;
+            _signInManager = signInManager;
         }
 
         public async Task<ServiceResult> RegisterUserAsync(UserRegistrationModel newUserModel)
@@ -46,6 +49,35 @@ namespace BLL.Services
             result = _mapper.Map<ServiceResult>(dbResponse);
 
             return result;
+        }
+
+        public async Task<ServiceResult> LoginUserAsync(UserLoggingInModel loginModel)
+        {
+            var result = new ServiceResult();
+
+            var loginResult = await _signInManager.PasswordSignInAsync(
+                    loginModel.Username,
+                    loginModel.Password,
+                    loginModel.RememberMe,
+                    false);
+
+            if (loginResult.Succeeded)
+            {
+                result.IsSuccessful = true;
+                result.Message = "User successfuly logged in!";
+            }
+            else
+            {
+                result.IsSuccessful = false;
+                result.Message = "Failed to log in.";
+            }
+
+            return result;
+        }
+
+        public async Task LogoutUserAsync()
+        {
+            await _signInManager.SignOutAsync();
         }
     }
 }

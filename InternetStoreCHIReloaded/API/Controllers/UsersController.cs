@@ -2,6 +2,7 @@
 using AutoMapper;
 using BLL.Interfaces;
 using BLL.Models;
+using DAL.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -21,10 +22,11 @@ namespace API.Controllers
 
         public UsersController(
             IUsersService usersService,
-            IMapper mapper)
+            IMapper mapper
+            )
         {
             _usersService = usersService;
-            _mapper = mapper;
+            _mapper = mapper;;
         }
 
         [HttpPost]
@@ -36,6 +38,31 @@ namespace API.Controllers
 
             var response = _mapper.Map<GenericResponse>(result);
             return response;
+        }
+
+        [HttpPost]
+        public async Task<GenericResponse> Login(LoginViewModel loginVM)
+        {
+            if(ModelState.IsValid)
+            {
+                var loginModel = _mapper.Map<UserLoggingInModel>(loginVM);
+                var result = await _usersService.LoginUserAsync(loginModel);
+                var response = _mapper.Map<GenericResponse>(result);
+                return response;
+            }
+            else
+            {
+                var response = new GenericResponse();
+                response.IsSuccessful = false;
+                response.Message = "Login data is not valid.";
+                return response;
+            }
+        }
+
+        [HttpPost]
+        public async Task Logout()
+        {
+            await _usersService.LogoutUserAsync();
         }
     }
 }

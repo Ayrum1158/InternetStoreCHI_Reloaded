@@ -9,5 +9,7 @@ namespace BLL.Interfaces
     public interface IUsersService
     {
         Task<ServiceResult> RegisterUserAsync(UserRegistrationModel newUser);
+        Task<ServiceResult> LoginUserAsync(UserLoggingInModel userModel);
+        Task LogoutUserAsync();
     }
 }

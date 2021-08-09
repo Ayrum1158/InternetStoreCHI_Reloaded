@@ -65,6 +65,8 @@ namespace API.Extensions
                 cfg.CreateMap<NewDbUserModel, UserRegistrationModel>().ReverseMap();
                 cfg.CreateMap<NewDbUserModel, UserEntity>().ReverseMap();
 
+                cfg.CreateMap<UserLoggingInModel, LoginViewModel>().ReverseMap();
+
             },
             typeof(Startup));
         }
