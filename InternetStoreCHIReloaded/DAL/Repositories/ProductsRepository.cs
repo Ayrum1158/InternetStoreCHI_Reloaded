@@ -63,23 +63,7 @@ namespace DAL.Repositories
 
         private Func<ProductEntity, object> GetProperty(OrderByProperty orderByProp)
         {
-            string propStringName;
-
-            switch (orderByProp)
-            {
-                case OrderByProperty.Id:
-                    propStringName = "Id";
-                    break;
-                case OrderByProperty.Name:
-                    propStringName = "Name";
-                    break;
-                case OrderByProperty.Price:
-                    propStringName = "Price";
-                    break;
-                default:
-                    propStringName = "Id";
-                    break;
-            }
+            string propStringName = Enum.GetName(typeof(OrderByProperty), orderByProp) ?? "Id";
 
             var prop = typeof(ProductEntity).GetProperty(propStringName);
 
