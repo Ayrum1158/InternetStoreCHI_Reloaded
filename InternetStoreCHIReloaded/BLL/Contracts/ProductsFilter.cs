@@ -10,7 +10,7 @@ namespace BLL.Contracts
         public int? CategoryId { get; set; }
         public int? FromPrice { get; set; }
         public int? ToPrice { get; set; }
-        public string SortPropName { get; set; } = "Id";
+        public OrderByProperty OrderByProperty { get; set; } = OrderByProperty.Id;
         public SortDirection SortDirection { get; set; } = SortDirection.None;
     }
 }
