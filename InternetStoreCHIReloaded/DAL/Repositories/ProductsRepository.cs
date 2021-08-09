@@ -37,33 +37,38 @@ namespace DAL.Repositories
             if (filter.ToPrice != null)
                 productsIQ = productsIQ.Where((pe) => pe.Price <= filter.ToPrice);
 
-            var prop = typeof(ProductEntity).GetProperty(filter.SortPropName);
-            Func<ProductEntity, object> sortByFunc = p => prop.GetValue(p, null);// func to get property
+            var sortByFunc = GetProperty(filter.OrderByProperty);
 
-            List<ProductEntity> products = null;
-
-            Task queryTask = Task.Run(()=> { });// don't want to catch exception on next await, so empty task
+            var products = await productsIQ.ToListAsync();
 
             switch (filter.SortDirection)
             {
                 case SortDirection.Ascending:
-                    queryTask = Task.Run(() => products = productsIQ.OrderBy(sortByFunc).ToList());
+                    products = products.OrderBy(sortByFunc).ThenBy(pe => pe.Id).ToList();
                     break;
                 case SortDirection.Descending:
-                    queryTask = Task.Run(() => products = productsIQ.OrderByDescending(sortByFunc).ToList());
+                    products = products.OrderByDescending(sortByFunc).ThenBy(pe => pe.Id).ToList();
                     break;
                 default:// SortDirection.None
-                    products = await productsIQ.ToListAsync();
+                    products = products.OrderBy(pe => pe.Id).ToList();
                     break;
             }
 
             int from = pageSize * (page - 1);
 
-            await queryTask;
-
             products = products.Skip(from).Take(pageSize).ToList();
 
             return products;
+        }
+
+        private Func<ProductEntity, object> GetProperty(OrderByProperty orderByProp)
+        {
+            string propStringName = Enum.GetName(typeof(OrderByProperty), orderByProp) ?? "Id";
+
+            var prop = typeof(ProductEntity).GetProperty(propStringName);
+
+            Func<ProductEntity, object> sortByFunc = p => prop.GetValue(p, null);// func to get property
+            return sortByFunc;
         }
     }
 }
