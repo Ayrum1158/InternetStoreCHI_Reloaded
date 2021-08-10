@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -27,7 +28,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet("Everything")]
         public async Task<GenericResponse<IEnumerable<ProductViewModel>>> Get()
         {
             var result = await _productService.GetProductsAsync();

@@ -14,7 +14,5 @@ namespace API.ViewModels
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-
-        public bool RememberMe { get; set; }
     }
 }

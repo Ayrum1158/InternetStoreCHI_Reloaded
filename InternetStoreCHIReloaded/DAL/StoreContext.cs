@@ -1,6 +1,7 @@
 ﻿using DAL.ConfigPOCOs;
 using DAL.Entities;
 using DAL.Extensions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -10,7 +11,7 @@ using System.Text;
 
 namespace DAL
 {
-    public class StoreContext : IdentityDbContext<UserEntity>
+    public class StoreContext : IdentityDbContext<UserEntity, IdentityRole<int>, int>
     {
         private readonly IOptionsMonitor<DBConfig> _dbConfig;
 

@@ -16,21 +16,30 @@ namespace BLL.Services
     {
         private readonly IMapper _mapper;
         private readonly IUsersRepository _usersRepository;
+        private readonly IGenericRepository<UserEntity> _usersGenericRepository;
         private readonly SignInManager<UserEntity> _signInManager;
+        private readonly UserManager<UserEntity> _userManager;
+        private readonly IAccessTokenGenerator _tokenGenerator;
 
         public UsersService(
             IMapper mapper,
             IUsersRepository usersRepository,
-            SignInManager<UserEntity> signInManager)
+            IGenericRepository<UserEntity> usersGenericRepository,
+            SignInManager<UserEntity> signInManager,
+            UserManager<UserEntity> userManager,
+            IAccessTokenGenerator tokenGenerator)
         {
             _mapper = mapper;
             _usersRepository = usersRepository;
+            _usersGenericRepository = usersGenericRepository;
             _signInManager = signInManager;
+            _userManager = userManager;
+            _tokenGenerator = tokenGenerator;
         }
 
         public async Task<ServiceResult> RegisterUserAsync(UserRegistrationModel newUserModel)
         {
-            ServiceResult result = null;
+            ServiceResult result;
 
             if(newUserModel.Password != newUserModel.ConfirmPassword)
             {
@@ -51,28 +60,34 @@ namespace BLL.Services
             return result;
         }
 
-        public async Task<ServiceResult> LoginUserAsync(UserLoggingInModel loginModel)
+        public async Task<ServiceResult<string>> LoginUserAsync(UserLoggingInModel loginModel)
         {
-            var result = new ServiceResult();
+            var result = new ServiceResult<string>();
 
-            var loginResult = await _signInManager.PasswordSignInAsync(
-                    loginModel.Username,
-                    loginModel.Password,
-                    loginModel.RememberMe,
-                    false);
+            var userEntity = await _usersGenericRepository.FindFirstOrDefaultAsync(u => u.UserName == loginModel.Username);
 
-            if (loginResult.Succeeded)
+            if(userEntity == null)
             {
+                result.IsSuccessful = false;
+                result.Message = "Check your login data.";
+                return result;
+            }
+
+            if(await _userManager.CheckPasswordAsync(userEntity, loginModel.Password))
+            {
+                var user = _mapper.Map<User>(userEntity);
+
                 result.IsSuccessful = true;
-                result.Message = "User successfuly logged in!";
+                result.Message = "User logged in successfuly!";
+                result.Data = _tokenGenerator.GenerateToken(user);
+                return result;
             }
             else
             {
                 result.IsSuccessful = false;
-                result.Message = "Failed to log in.";
+                result.Message = "Check your login data.";
+                return result;
             }
-
-            return result;
         }
 
         public async Task LogoutUserAsync()

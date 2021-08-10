@@ -41,18 +41,18 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<GenericResponse> Login(LoginViewModel loginVM)
+        public async Task<GenericResponse<string>> Login(LoginViewModel loginVM)
         {
             if(ModelState.IsValid)
             {
                 var loginModel = _mapper.Map<UserLoggingInModel>(loginVM);
                 var result = await _usersService.LoginUserAsync(loginModel);
-                var response = _mapper.Map<GenericResponse>(result);
+                var response = _mapper.Map<GenericResponse<string>>(result);
                 return response;
             }
             else
             {
-                var response = new GenericResponse();
+                var response = new GenericResponse<string>();
                 response.IsSuccessful = false;
                 response.Message = "Login data is not valid.";
                 return response;
