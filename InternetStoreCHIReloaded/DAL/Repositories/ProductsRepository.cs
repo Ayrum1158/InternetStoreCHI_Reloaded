@@ -37,38 +37,38 @@ namespace DAL.Repositories
             if (filter.ToPrice != null)
                 productsIQ = productsIQ.Where((pe) => pe.Price <= filter.ToPrice);
 
-            var sortByFunc = GetProperty(filter.OrderByProperty);
-
-            var products = await productsIQ.ToListAsync();
+            var orderByExpr = GetOrderByExpression(filter.OrderByProperty);
 
             switch (filter.SortDirection)
             {
                 case SortDirection.Ascending:
-                    products = products.OrderBy(sortByFunc).ThenBy(pe => pe.Id).ToList();
+                    productsIQ = productsIQ.OrderBy(orderByExpr).ThenBy(pe => pe.Id);
                     break;
                 case SortDirection.Descending:
-                    products = products.OrderByDescending(sortByFunc).ThenBy(pe => pe.Id).ToList();
+                    productsIQ = productsIQ.OrderByDescending(orderByExpr).ThenBy(pe => pe.Id);
                     break;
                 default:// SortDirection.None
-                    products = products.OrderBy(pe => pe.Id).ToList();
+                    productsIQ = productsIQ.OrderBy(pe => pe.Id);
                     break;
             }
 
             int from = pageSize * (page - 1);
 
-            products = products.Skip(from).Take(pageSize).ToList();
+            var products = await productsIQ.Skip(from).Take(pageSize).ToListAsync();
 
             return products;
         }
 
-        private Func<ProductEntity, object> GetProperty(OrderByProperty orderByProp)
+        private Expression<Func<ProductEntity, object>> GetOrderByExpression(OrderByProperty orderByProp)
         {
             string propStringName = Enum.GetName(typeof(OrderByProperty), orderByProp) ?? "Id";
 
-            var prop = typeof(ProductEntity).GetProperty(propStringName);
+            var type = typeof(ProductEntity);
+            var prop = type.GetProperty(propStringName);
+            var param = Expression.Parameter(type);
+            var expr = Expression.Lambda<Func<ProductEntity, object>>(Expression.Convert(Expression.Property(param, prop), typeof(object)), param);
 
-            Func<ProductEntity, object> sortByFunc = p => prop.GetValue(p, null);// func to get property
-            return sortByFunc;
+            return expr;
         }
     }
 }
