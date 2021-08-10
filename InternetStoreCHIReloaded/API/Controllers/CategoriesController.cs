@@ -15,18 +15,17 @@ namespace API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryService _categoryService;
+        private readonly ICategoriesService _categoryService;
         private readonly IMapper _mapper;
 
-        public CategoriesController(ICategoryService categoryService, IMapper mapper)// ctor
+        public CategoriesController(ICategoriesService categoryService, IMapper mapper)
         {
             _categoryService = categoryService;
             _mapper = mapper;
         }
 
-        // GET: api/<CategoryController>
         [HttpGet]
-        public async Task<GenericResponse<IEnumerable<CategoryViewModel>>> Get()// return all
+        public async Task<GenericResponse<IEnumerable<CategoryViewModel>>> Get()
         {
             var result = await _categoryService.GetCategoriesAsync();
 
@@ -42,7 +41,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<GenericResponse<CategoryViewModel>> Get(int id)// return specific
+        public async Task<GenericResponse<CategoryViewModel>> Get(int id)
         {
             var result = await _categoryService.GetCategoryAsync(id);
 
@@ -51,7 +50,7 @@ namespace API.Controllers
             return response;
         }
 
-        [HttpPost]// POST aka Create
+        [HttpPost]
         public async Task<GenericResponse<CategoryViewModel>> Post([FromBody] CategoryViewModel newCategory)
         {
             var contract = _mapper.Map<Category>(newCategory);
@@ -63,7 +62,7 @@ namespace API.Controllers
             return response;
         }
 
-        [HttpPut("{id}")]// PUT aka Update
+        [HttpPut("{id}")]
         public async Task<GenericResponse<CategoryViewModel>> Put(int id, [FromBody] CategoryViewModel updatedCategory)
         {
             if (id != updatedCategory.CategoryId)

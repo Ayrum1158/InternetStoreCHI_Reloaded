@@ -4,14 +4,16 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    partial class StoreContextModelSnapshot : ModelSnapshot
+    [Migration("20210729081955_AddOneToManyRelationshipBetweenProductAndCategoryEntities")]
+    partial class AddOneToManyRelationshipBetweenProductAndCategoryEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,27 +49,27 @@ namespace DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            CreatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified),
+                            Id = -1,
+                            CreatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291),
                             Description = "Like the phone, but cooler",
                             Name = "Smatrphone",
-                            UpdatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified)
+                            UpdatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291)
                         },
                         new
                         {
-                            Id = 2,
-                            CreatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified),
+                            Id = -2,
+                            CreatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291),
                             Description = "Like the smartphone, but bigger",
                             Name = "TV",
-                            UpdatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified)
+                            UpdatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291)
                         },
                         new
                         {
-                            Id = 3,
-                            CreatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified),
+                            Id = -3,
+                            CreatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291),
                             Description = "Totally not like a TV, gives you a nice ride though",
                             Name = "Car",
-                            UpdatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified)
+                            UpdatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291)
                         });
                 });
 
@@ -105,33 +107,33 @@ namespace DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            CategoryId = 1,
-                            CreatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified),
+                            Id = -1,
+                            CategoryId = -1,
+                            CreatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291),
                             Description = "Best smartphone for the best daddies",
                             Name = "Shwamsung Galaxy Milky Way 8 - Infinitely Blue",
                             Price = 1337.69m,
-                            UpdatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified)
+                            UpdatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291)
                         },
                         new
                         {
-                            Id = 2,
-                            CategoryId = 2,
-                            CreatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified),
+                            Id = -2,
+                            CategoryId = -2,
+                            CreatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291),
                             Description = "4k to masses, money in cases",
                             Name = "Salami Mi LED TV 4S 50 inch",
                             Price = 484.74m,
-                            UpdatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified)
+                            UpdatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291)
                         },
                         new
                         {
-                            Id = 3,
-                            CategoryId = 3,
-                            CreatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified),
+                            Id = -3,
+                            CategoryId = -3,
+                            CreatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291),
                             Description = "DC Powah!",
                             Name = "Edison Model S",
                             Price = 123000m,
-                            UpdatedDate = new DateTime(2021, 8, 4, 12, 20, 19, 0, DateTimeKind.Unspecified)
+                            UpdatedDate = new DateTime(2021, 7, 29, 8, 19, 55, 93, DateTimeKind.Utc).AddTicks(1291)
                         });
                 });
 

@@ -1,10 +1,7 @@
 using API.Extensions;
-using API.ViewModels;
-using BLL.Contracts;
 using BLL.Interfaces;
 using BLL.Services;
 using DAL.ConfigPOCOs;
-using DAL.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -40,27 +37,15 @@ namespace API
             var dbConfig = dbConfigSection.Get<DBConfig>();
             services.ConfigureDBContext(dbConfig);
 
-            services.AddAutoMapper(cfg =>
-            {
-                cfg.CreateMap<Category, CategoryViewModel>().ReverseMap();
-
-                cfg.CreateMap<CategoryEntity, Category>()
-                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Description))
-                .ReverseMap();
-
-                cfg.CreateMap<ResultContract, GenericResponse>().ReverseMap();
-
-                cfg.CreateMap(typeof(ResultContract<>), typeof(GenericResponse<>)).ReverseMap();
-            },
-            typeof(Startup));
+            services.ConfigureAutomapper();
 
             services.ConfigureRepositories();// generic and non-generic repositories
 
-            services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<ICategoriesService, CategoriesService>();
+            services.AddTransient<IProductsService, ProductsService>();
 
             services.AddControllers();
+
             services.AddSwaggerGen();
         }
 
