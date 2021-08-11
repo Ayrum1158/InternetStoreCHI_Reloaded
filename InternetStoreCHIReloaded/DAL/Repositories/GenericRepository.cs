@@ -53,7 +53,8 @@ namespace DAL.Repositories
 
         public virtual async Task<bool> IsPresentInDbAsync(Expression<Func<T, bool>> expression)
         {
-            var res = (await FindFirstOrDefaultAsync(expression)) != null;
+            var res = await _fieldOfWork.AnyAsync(expression);
+            //var res = (await FindFirstOrDefaultAsync(expression)) != null;
             return res;
         }
 

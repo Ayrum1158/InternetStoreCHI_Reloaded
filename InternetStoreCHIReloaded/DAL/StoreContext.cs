@@ -32,8 +32,6 @@ namespace DAL
                 var connectionString = _dbConfig.CurrentValue.ConnectionString;
                 optionsBuilder.UseSqlServer(connectionString);
             }
-
-            //optionsBuilder.UseLazyLoadingProxies();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,6 +49,8 @@ namespace DAL
             modelBuilder.Entity<UserEntity>().HasMany(u => u.UserOrders).WithMany(ps => ps.Users);
 
             modelBuilder.Entity<ProductsSetEntity>().HasMany(ps => ps.Products).WithMany(pwq => pwq.ProductsSets);
+
+            modelBuilder.Entity<ProductWithQuantityEntity>().HasOne(pwq => pwq.Product).WithMany().HasForeignKey(pwq => pwq.ProductId);
 
             modelBuilder.Seed();
         }

@@ -3,12 +3,14 @@ using AutoMapper;
 using BLL.Interfaces;
 using BLL.Models;
 using DAL.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace API.Controllers
@@ -57,6 +59,21 @@ namespace API.Controllers
                 response.Message = "Login data is not valid.";
                 return response;
             }
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<GenericResponse> AddToCart(AddToCartViewModel viewModel)
+        {
+            int userId = int.Parse(User.FindFirst("id").Value);
+
+            var atcModel = _mapper.Map<AddToCartModel>(viewModel);
+
+            var result = await _usersService.AddToUserCart(userId, atcModel);
+
+            var response = _mapper.Map<GenericResponse>(result);
+
+            return response;
         }
     }
 }

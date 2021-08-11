@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DAL.Models
 {
-    public class NewDbUserModel
+    public class NewUserDbModel
     {
         public string Username { get; set; }
         public string Password { get; set; }

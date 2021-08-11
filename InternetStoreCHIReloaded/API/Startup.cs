@@ -1,4 +1,5 @@
 using API.Extensions;
+using API.SwaggerSetup;
 using BLL.ConfigPOCOs;
 using BLL.Interfaces;
 using BLL.Services;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,7 +91,30 @@ namespace API
 
             services.AddControllers();
 
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(o =>
+            {
+                o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
+                });
+
+                OpenApiSecurityScheme securityScheme = new OpenApiSecurityScheme()
+                {
+                    Reference = new OpenApiReference()
+                    {
+                        Id = "Bearer",
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+                OpenApiSecurityRequirement securityRequirements = new OpenApiSecurityRequirement()
+                {
+                    {securityScheme, new string[] { }},
+                };
+                o.AddSecurityRequirement(securityRequirements);
+            });// AddSwaggerGen end
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -11,5 +11,10 @@ namespace DAL.Entities
         public ICollection<ProductWithQuantityEntity> Products { get; set; }
 
         public IEnumerable<UserEntity> Users { get; set; }// nav prop
+
+        public ProductsSetEntity()
+        {
+            Products = new List<ProductWithQuantityEntity>();
+        }
     }
 }

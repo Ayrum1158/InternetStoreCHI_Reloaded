@@ -12,5 +12,11 @@ namespace DAL.Entities
         public string LastName { get; set; }
         public ProductsSetEntity UserCart { get; set; }
         public ICollection<ProductsSetEntity> UserOrders { get; set; }
+
+        public UserEntity()
+        {
+            UserCart = new ProductsSetEntity();
+            UserOrders = new List<ProductsSetEntity>();
+        }
     }
 }

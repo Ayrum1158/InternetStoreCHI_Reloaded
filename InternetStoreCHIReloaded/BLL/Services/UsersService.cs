@@ -17,24 +17,24 @@ namespace BLL.Services
         private readonly IMapper _mapper;
         private readonly IUsersRepository _usersRepository;
         private readonly IGenericRepository<UserEntity> _usersGenericRepository;
-        private readonly SignInManager<UserEntity> _signInManager;
         private readonly UserManager<UserEntity> _userManager;
         private readonly IAccessTokenGenerator _tokenGenerator;
+        private readonly IGenericRepository<ProductEntity> _productGenericRepository;
 
         public UsersService(
             IMapper mapper,
             IUsersRepository usersRepository,
             IGenericRepository<UserEntity> usersGenericRepository,
-            SignInManager<UserEntity> signInManager,
             UserManager<UserEntity> userManager,
-            IAccessTokenGenerator tokenGenerator)
+            IAccessTokenGenerator tokenGenerator,
+            IGenericRepository<ProductEntity> productGenericRepository)
         {
             _mapper = mapper;
             _usersRepository = usersRepository;
             _usersGenericRepository = usersGenericRepository;
-            _signInManager = signInManager;
             _userManager = userManager;
             _tokenGenerator = tokenGenerator;
+            _productGenericRepository = productGenericRepository;
         }
 
         public async Task<ServiceResult> RegisterUserAsync(UserRegistrationModel newUserModel)
@@ -51,7 +51,7 @@ namespace BLL.Services
                 return result;
             }
 
-            var newDbUserModel = _mapper.Map<NewDbUserModel>(newUserModel);
+            var newDbUserModel = _mapper.Map<NewUserDbModel>(newUserModel);
 
             var dbResponse = await _usersRepository.RegisterUserAsync(newDbUserModel);
 
@@ -86,6 +86,29 @@ namespace BLL.Services
             {
                 result.IsSuccessful = false;
                 result.Message = "Check your login data.";
+                return result;
+            }
+        }
+
+        public async Task<ServiceResult> AddToUserCart(int userId, AddToCartModel atcModel)// no user validation because we retrieve userId via JWT
+        {
+            var isProductPresent = await _productGenericRepository.IsPresentInDbAsync(p => p.Id == atcModel.ProductId);
+
+            if (isProductPresent)
+            {
+                var dbModel = _mapper.Map<AddToCartDbModel>(atcModel);
+                var dbResponse = await _usersRepository.AddProductToUserCartAsync(userId, dbModel);
+
+                var result = _mapper.Map<ServiceResult>(dbResponse);
+                return result;
+            }
+            else
+            {
+                var result = new ServiceResult()
+                {
+                    IsSuccessful = false,
+                    Message = "No product found."
+                };
                 return result;
             }
         }
