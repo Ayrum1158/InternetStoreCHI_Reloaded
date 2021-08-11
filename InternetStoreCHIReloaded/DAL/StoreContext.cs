@@ -22,6 +22,8 @@ namespace DAL
 
         public virtual DbSet<CategoryEntity> Categories { get; set; }
         public virtual DbSet<ProductEntity> Products { get; set; }
+        public virtual DbSet<ProductWithQuantityEntity> ProductsWithQuantity { get; set; }
+        public virtual DbSet<ProductsSetEntity> ProductsSet { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -40,11 +42,15 @@ namespace DAL
 
             modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Name).HasMaxLength(20);
             modelBuilder.Entity<CategoryEntity>().Property(ce => ce.Description).HasMaxLength(200);
-
             modelBuilder.Entity<CategoryEntity>().HasKey(ce => ce.Id);
-            modelBuilder.Entity<ProductEntity>().HasKey(pe => pe.Id);
 
+            modelBuilder.Entity<ProductEntity>().HasKey(pe => pe.Id);
             modelBuilder.Entity<ProductEntity>().HasOne(pe => pe.Category).WithMany(ce => ce.Products).HasForeignKey(pe => pe.CategoryId);
+
+            modelBuilder.Entity<UserEntity>().HasOne(u => u.UserCart).WithMany();
+            modelBuilder.Entity<UserEntity>().HasMany(u => u.UserOrders).WithMany(ps => ps.Users);
+
+            modelBuilder.Entity<ProductsSetEntity>().HasMany(ps => ps.Products).WithMany(pwq => pwq.ProductsSets);
 
             modelBuilder.Seed();
         }

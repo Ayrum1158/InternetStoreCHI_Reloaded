@@ -4,16 +4,14 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20210810124209_FreshMigrationAfterTooManyErrors")]
-    partial class FreshMigrationAfterTooManyErrors
+    partial class StoreContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -137,6 +135,38 @@ namespace DAL.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DAL.Entities.ProductWithQuantityEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductsWithQuantity");
+                });
+
+            modelBuilder.Entity("DAL.Entities.ProductsSetEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductsSet");
+                });
+
             modelBuilder.Entity("DAL.Entities.UserEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -193,6 +223,9 @@ namespace DAL.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("UserCartId")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -206,6 +239,8 @@ namespace DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("UserCartId");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -340,6 +375,36 @@ namespace DAL.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("ProductWithQuantityEntityProductsSetEntity", b =>
+                {
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductsSetsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductsId", "ProductsSetsId");
+
+                    b.HasIndex("ProductsSetsId");
+
+                    b.ToTable("ProductWithQuantityEntityProductsSetEntity");
+                });
+
+            modelBuilder.Entity("ProductsSetEntityUserEntity", b =>
+                {
+                    b.Property<int>("UserOrdersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserOrdersId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("ProductsSetEntityUserEntity");
+                });
+
             modelBuilder.Entity("DAL.Entities.ProductEntity", b =>
                 {
                     b.HasOne("DAL.Entities.CategoryEntity", "Category")
@@ -349,6 +414,26 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("DAL.Entities.ProductWithQuantityEntity", b =>
+                {
+                    b.HasOne("DAL.Entities.ProductEntity", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("DAL.Entities.UserEntity", b =>
+                {
+                    b.HasOne("DAL.Entities.ProductsSetEntity", "UserCart")
+                        .WithMany()
+                        .HasForeignKey("UserCartId");
+
+                    b.Navigation("UserCart");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -398,6 +483,36 @@ namespace DAL.Migrations
                     b.HasOne("DAL.Entities.UserEntity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductWithQuantityEntityProductsSetEntity", b =>
+                {
+                    b.HasOne("DAL.Entities.ProductWithQuantityEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.Entities.ProductsSetEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsSetsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductsSetEntityUserEntity", b =>
+                {
+                    b.HasOne("DAL.Entities.ProductsSetEntity", null)
+                        .WithMany()
+                        .HasForeignKey("UserOrdersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.Entities.UserEntity", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

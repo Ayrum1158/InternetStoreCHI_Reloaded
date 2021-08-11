@@ -58,11 +58,5 @@ namespace API.Controllers
                 return response;
             }
         }
-
-        [HttpPost]
-        public async Task Logout()
-        {
-            await _usersService.LogoutUserAsync();
-        }
     }
 }

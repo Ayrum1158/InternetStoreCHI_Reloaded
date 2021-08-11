@@ -9,5 +9,7 @@ namespace BLL.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public ProductsSet UserCart { get; set; }
+        public ICollection<ProductsSet> UserOrders { get; set; }
     }
 }
