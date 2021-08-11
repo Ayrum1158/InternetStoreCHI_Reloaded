@@ -89,10 +89,5 @@ namespace BLL.Services
                 return result;
             }
         }
-
-        public async Task LogoutUserAsync()
-        {
-            await _signInManager.SignOutAsync();
-        }
     }
 }
