@@ -41,7 +41,7 @@ namespace BLL.Services
         {
             ServiceResult result;
 
-            if(newUserModel.Password != newUserModel.ConfirmPassword)
+            if (newUserModel.Password != newUserModel.ConfirmPassword)
             {
                 result = new ServiceResult()
                 {
@@ -66,14 +66,14 @@ namespace BLL.Services
 
             var userEntity = await _usersGenericRepository.FindFirstOrDefaultAsync(u => u.UserName == loginModel.Username);
 
-            if(userEntity == null)
+            if (userEntity == null)
             {
                 result.IsSuccessful = false;
                 result.Message = "Check your login data.";
                 return result;
             }
 
-            if(await _userManager.CheckPasswordAsync(userEntity, loginModel.Password))
+            if (await _userManager.CheckPasswordAsync(userEntity, loginModel.Password))
             {
                 var user = _mapper.Map<User>(userEntity);
 
@@ -92,25 +92,30 @@ namespace BLL.Services
 
         public async Task<ServiceResult> AddToUserCart(int userId, AddToCartModel atcModel)// no user validation because we retrieve userId via JWT
         {
-            var isProductPresent = await _productGenericRepository.IsPresentInDbAsync(p => p.Id == atcModel.ProductId);
-
-            if (isProductPresent)
+            if (atcModel.Quantity < 1)
             {
-                var dbModel = _mapper.Map<AddToCartDbModel>(atcModel);
-                var dbResponse = await _usersRepository.AddProductToUserCartAsync(userId, dbModel);
-
-                var result = _mapper.Map<ServiceResult>(dbResponse);
-                return result;
+                return new ServiceResult()
+                {
+                    IsSuccessful = false,
+                    Message = "Quantity is less then 1."
+                };
             }
-            else
+
+            var isProductPresent = await _productGenericRepository.IsPresentInDbAsync(p => p.Id == atcModel.ProductId);
+            if (!isProductPresent)
             {
-                var result = new ServiceResult()
+                return new ServiceResult()
                 {
                     IsSuccessful = false,
                     Message = "No product found."
                 };
-                return result;
             }
+
+            var dbModel = _mapper.Map<AddToCartDbModel>(atcModel);
+            var dbResponse = await _usersRepository.AddProductToUserCartAsync(userId, dbModel);
+
+            var result = _mapper.Map<ServiceResult>(dbResponse);
+            return result;
         }
     }
 }

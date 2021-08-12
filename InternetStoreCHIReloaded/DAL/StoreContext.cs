@@ -23,7 +23,7 @@ namespace DAL
         public virtual DbSet<CategoryEntity> Categories { get; set; }
         public virtual DbSet<ProductEntity> Products { get; set; }
         public virtual DbSet<ProductWithQuantityEntity> ProductsWithQuantity { get; set; }
-        public virtual DbSet<ProductsSetEntity> ProductsSet { get; set; }
+        public virtual DbSet<CartEntity> Carts { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -45,12 +45,11 @@ namespace DAL
             modelBuilder.Entity<ProductEntity>().HasKey(pe => pe.Id);
             modelBuilder.Entity<ProductEntity>().HasOne(pe => pe.Category).WithMany(ce => ce.Products).HasForeignKey(pe => pe.CategoryId);
 
-            modelBuilder.Entity<UserEntity>().HasOne(u => u.UserCart).WithMany();
-            modelBuilder.Entity<UserEntity>().HasMany(u => u.UserOrders).WithMany(ps => ps.Users);
-
-            modelBuilder.Entity<ProductsSetEntity>().HasMany(ps => ps.Products).WithMany(pwq => pwq.ProductsSets);
+            modelBuilder.Entity<UserEntity>().HasOne(u => u.UserCart);
 
             modelBuilder.Entity<ProductWithQuantityEntity>().HasOne(pwq => pwq.Product).WithMany().HasForeignKey(pwq => pwq.ProductId);
+
+            modelBuilder.Entity<CartEntity>().HasMany(ce => ce.CartItems).WithMany(pwq => pwq.Carts);
 
             modelBuilder.Seed();
         }

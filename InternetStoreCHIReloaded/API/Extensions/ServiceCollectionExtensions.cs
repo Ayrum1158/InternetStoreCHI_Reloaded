@@ -67,11 +67,12 @@ namespace API.Extensions
 
                 cfg.CreateMap<UserLoggingInModel, LoginViewModel>().ReverseMap();
 
-                cfg.CreateMap<ProductsSet, ProductsSetEntity>().ReverseMap();
                 cfg.CreateMap<ProductWithQuantity, ProductWithQuantityEntity>().ReverseMap();
 
                 cfg.CreateMap<AddToCartModel, AddToCartViewModel>().ReverseMap();
                 cfg.CreateMap<AddToCartModel, AddToCartDbModel>().ReverseMap();
+
+                cfg.CreateMap<Cart, CartEntity>().ReverseMap();
             },
             typeof(Startup));
         }

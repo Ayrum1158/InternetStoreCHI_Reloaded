@@ -12,6 +12,6 @@ namespace DAL.Entities
         public ProductEntity Product { get; set; }
         public int ProductId { get; set; }
 
-        public IEnumerable<ProductsSetEntity> ProductsSets { get; set; }// nav prop
+        public IEnumerable<CartEntity> Carts { get; set; }// nav prop
     }
 }

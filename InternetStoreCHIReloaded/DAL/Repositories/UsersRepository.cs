@@ -3,6 +3,7 @@ using DAL.Entities;
 using DAL.Interfaces;
 using DAL.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,17 +59,37 @@ namespace DAL.Repositories
             }
         }
 
-        public async Task<DbResponse> AddProductToUserCartAsync(int userId, AddToCartDbModel dbModel)
+        public async Task<DbResponse> AddProductToUserCartAsync(int userId, AddToCartDbModel addToCartDbModel)
         {
             var dbResponse = new DbResponse();
 
-            var user = await FindFirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _dbcontext.Users.Include(x => x.UserCart).ThenInclude(x=>x.CartItems).Where(u => u.Id == userId).FirstOrDefaultAsync();
 
-            user.UserCart.Products.Add(new ProductWithQuantityEntity()
+            //var user = await FindFirstOrDefaultAsync(u => u.Id == userId);
+
+            if(user.UserCart.CartItems.Any(ci => ci.ProductId == addToCartDbModel.ProductId))
             {
-                ProductId = dbModel.ProductId,
-                Quantity = dbModel.Quantity
-            });
+                var product = user.UserCart.CartItems.Where(ci => ci.ProductId == addToCartDbModel.ProductId).Single();
+                product.Quantity += addToCartDbModel.Quantity;
+            }
+            else
+            {
+                if (!DoesUserCartExist(userId))
+                {
+                    var cart = _dbcontext.Carts.Add(new CartEntity()
+                    {
+                        UserId = userId
+                    });
+
+                    user.UserCart = cart.Entity;
+                }
+
+                user.UserCart.CartItems.Add(new ProductWithQuantityEntity()
+                {
+                    ProductId = addToCartDbModel.ProductId,
+                    Quantity = addToCartDbModel.Quantity,
+                });
+            }
 
             bool saveSuccess = await SaveAsync();
 
@@ -84,6 +105,11 @@ namespace DAL.Repositories
             }
 
             return dbResponse;
+        }
+
+        private bool DoesUserCartExist(int userId)
+        {
+            return _dbcontext.Carts.Any(c => c.UserId == userId);
         }
     }
 }

@@ -4,35 +4,22 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    partial class StoreContextModelSnapshot : ModelSnapshot
+    [Migration("20210812131047_ChangedCartAndOrdersPart")]
+    partial class ChangedCartAndOrdersPart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.8")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("CartEntityProductWithQuantityEntity", b =>
-                {
-                    b.Property<int>("CartItemsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CartsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CartItemsId", "CartsId");
-
-                    b.HasIndex("CartsId");
-
-                    b.ToTable("CartEntityProductWithQuantityEntity");
-                });
 
             modelBuilder.Entity("DAL.Entities.CartEntity", b =>
                 {
@@ -175,6 +162,9 @@ namespace DAL.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("CartEntityId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -182,6 +172,8 @@ namespace DAL.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CartEntityId");
 
                     b.HasIndex("ProductId");
 
@@ -396,21 +388,6 @@ namespace DAL.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("CartEntityProductWithQuantityEntity", b =>
-                {
-                    b.HasOne("DAL.Entities.ProductWithQuantityEntity", null)
-                        .WithMany()
-                        .HasForeignKey("CartItemsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DAL.Entities.CartEntity", null)
-                        .WithMany()
-                        .HasForeignKey("CartsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("DAL.Entities.ProductEntity", b =>
                 {
                     b.HasOne("DAL.Entities.CategoryEntity", "Category")
@@ -424,6 +401,10 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.ProductWithQuantityEntity", b =>
                 {
+                    b.HasOne("DAL.Entities.CartEntity", null)
+                        .WithMany("CartItems")
+                        .HasForeignKey("CartEntityId");
+
                     b.HasOne("DAL.Entities.ProductEntity", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
@@ -491,6 +472,11 @@ namespace DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DAL.Entities.CartEntity", b =>
+                {
+                    b.Navigation("CartItems");
                 });
 
             modelBuilder.Entity("DAL.Entities.CategoryEntity", b =>
