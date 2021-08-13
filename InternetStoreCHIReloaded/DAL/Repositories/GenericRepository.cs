@@ -41,9 +41,16 @@ namespace DAL.Repositories
             return await Task.Run(() => _fieldOfWork.Where(predicate).ToList());
         }
 
-        public virtual async Task<T> FindFirstOrDefaultAsync(Expression<Func<T, bool>> expression)
+        public virtual async Task<T> FindFirstOrDefaultAsync(Expression<Func<T, bool>> whereExpression, params Expression<Func<T, object>>[] includeProperties)
         {
-            return await _fieldOfWork.FirstOrDefaultAsync(expression);
+            IQueryable<T> query = _fieldOfWork.Where(whereExpression);
+
+            foreach (var prop in includeProperties)
+            {
+                query = query.Include(prop);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public virtual async Task<IEnumerable<T>> GetAllAsync()

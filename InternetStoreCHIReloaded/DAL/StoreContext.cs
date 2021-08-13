@@ -45,7 +45,7 @@ namespace DAL
             modelBuilder.Entity<ProductEntity>().HasKey(pe => pe.Id);
             modelBuilder.Entity<ProductEntity>().HasOne(pe => pe.Category).WithMany(ce => ce.Products).HasForeignKey(pe => pe.CategoryId);
 
-            modelBuilder.Entity<UserEntity>().HasOne(u => u.UserCart);
+            modelBuilder.Entity<UserEntity>().HasOne(u => u.UserCart).WithOne(c => c.User).HasForeignKey<CartEntity>(c => c.UserId);
 
             modelBuilder.Entity<ProductWithQuantityEntity>().HasOne(pwq => pwq.Product).WithMany().HasForeignKey(pwq => pwq.ProductId);
 

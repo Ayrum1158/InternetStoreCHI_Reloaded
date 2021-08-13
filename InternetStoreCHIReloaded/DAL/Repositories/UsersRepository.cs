@@ -4,9 +4,11 @@ using DAL.Interfaces;
 using DAL.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,6 +20,7 @@ namespace DAL.Repositories
         private readonly SignInManager<UserEntity> _signInManager;
         private readonly IMapper _mapper;
 
+        private DbSet<UserEntity> _users { get; set; }
 
         public UsersRepository(
             UserManager<UserEntity> userManager,
@@ -26,6 +29,8 @@ namespace DAL.Repositories
 
             StoreContext dbcontext) : base(dbcontext)
         {
+            _users = _fieldOfWork;
+
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
@@ -63,9 +68,7 @@ namespace DAL.Repositories
         {
             var dbResponse = new DbResponse();
 
-            var user = await _dbcontext.Users.Include(x => x.UserCart).ThenInclude(x=>x.CartItems).Where(u => u.Id == userId).FirstOrDefaultAsync();
-
-            //var user = await FindFirstOrDefaultAsync(u => u.Id == userId);
+            var user = await FindFirstOrDefaultAsync(u => u.Id == userId, u => u.UserCart, u => u.UserCart.CartItems);
 
             if(user.UserCart.CartItems.Any(ci => ci.ProductId == addToCartDbModel.ProductId))
             {
@@ -76,12 +79,7 @@ namespace DAL.Repositories
             {
                 if (!DoesUserCartExist(userId))
                 {
-                    var cart = _dbcontext.Carts.Add(new CartEntity()
-                    {
-                        UserId = userId
-                    });
-
-                    user.UserCart = cart.Entity;
+                    user.UserCart = new CartEntity() { UserId = userId };
                 }
 
                 user.UserCart.CartItems.Add(new ProductWithQuantityEntity()

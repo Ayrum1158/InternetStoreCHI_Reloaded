@@ -12,7 +12,7 @@ namespace DAL.Interfaces
     {
         Task<DbResponse<T>> AddAsync(T entity);
         Task<IEnumerable<T>> FindAllAsync(Func<T, bool> predicate);
-        Task<T> FindFirstOrDefaultAsync(Expression<Func<T, bool>> expression);
+        Task<T> FindFirstOrDefaultAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includeProperties);
         Task<IEnumerable<T>> GetAllAsync();
         Task<bool> IsPresentInDbAsync(Expression<Func<T, bool>> expression);
         Task<bool> RemoveAsync(int entityId);
