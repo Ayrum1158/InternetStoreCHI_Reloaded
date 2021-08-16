@@ -10,6 +10,8 @@ namespace DAL.Interfaces
     public interface IUsersRepository
     {
         Task<DbResponse> RegisterUserAsync(NewUserDbModel newUser);
-        Task<DbResponse> AddProductToUserCartAsync(int userId, AddToCartDbModel dbModel);
+        Task<DbResponse> SetProductToUserCartAsync(int userId, ProductToCartDbModel productToCartDbModel);
+        Task<DbResponse> RemoveProductSetFromUserCartAsync(int userId, int productId);
+        Task<DbResponse<int>> GetQuantityOfProductInCartAsync(int userId, int productId);
     }
 }

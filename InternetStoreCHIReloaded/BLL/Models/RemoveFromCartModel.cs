@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DAL.Models
+namespace BLL.Models
 {
-    public class ProductToCartDbModel
+    public class RemoveFromCartModel
     {
         public int ProductId { get; set; }
         public int Quantity { get; set; }

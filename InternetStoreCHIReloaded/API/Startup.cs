@@ -1,5 +1,4 @@
 using API.Extensions;
-using API.SwaggerSetup;
 using BLL.ConfigPOCOs;
 using BLL.Interfaces;
 using BLL.Services;
@@ -10,7 +9,6 @@ using DAL.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,10 +35,7 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddSession((options) =>
-            //{
-            //    options.Cookie.IsEssential = true;
-            //});
+            services.AddCors();
 
             var dbConfigSection = Configuration.GetSection(nameof(DBConfig));
             services.Configure<DBConfig>(dbConfigSection);// add DBConfig to IOptionsManager
@@ -134,6 +129,8 @@ namespace API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(builder => builder.AllowAnyOrigin());
 
             app.UseAuthentication();
 

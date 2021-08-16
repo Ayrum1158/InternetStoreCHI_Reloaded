@@ -15,7 +15,7 @@ namespace DAL.Entities
         public DateTime CreationDate { get; set; }
 
         // Cart items:
-        public virtual ICollection<ProductWithQuantityEntity> CartItems { get; set; } 
+        public ICollection<ProductWithQuantityEntity> CartItems { get; set; }
 
         public CartEntity()// ctor
         {

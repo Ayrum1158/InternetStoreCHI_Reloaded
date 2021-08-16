@@ -63,13 +63,28 @@ namespace API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<GenericResponse> AddToCart(AddToCartViewModel viewModel)
+        public async Task<GenericResponse> AddToCart(AddToCartViewModel atcViewModel)
         {
             int userId = int.Parse(User.FindFirst("id").Value);
 
-            var atcModel = _mapper.Map<AddToCartModel>(viewModel);
+            var atcModel = _mapper.Map<AddToCartModel>(atcViewModel);
 
             var result = await _usersService.AddToUserCart(userId, atcModel);
+
+            var response = _mapper.Map<GenericResponse>(result);
+
+            return response;
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<GenericResponse> RemoveFromCart(RemoveFromCartViewModel rfcViewModel)
+        {
+            int userId = int.Parse(User.FindFirst("id").Value);
+
+            var rfcModel = _mapper.Map<RemoveFromCartModel>(rfcViewModel);
+
+            var result = await _usersService.RemoveFromUserCart(userId, rfcModel);
 
             var response = _mapper.Map<GenericResponse>(result);
 

@@ -111,10 +111,54 @@ namespace BLL.Services
                 };
             }
 
-            var dbModel = _mapper.Map<AddToCartDbModel>(atcModel);
-            var dbResponse = await _usersRepository.AddProductToUserCartAsync(userId, dbModel);
+            var dbModel = _mapper.Map<ProductToCartDbModel>(atcModel);
+
+            var quantityDbResponse = await _usersRepository.GetQuantityOfProductInCartAsync(userId, atcModel.ProductId);
+            dbModel.Quantity += quantityDbResponse.Data;
+            var dbResponse = await _usersRepository.SetProductToUserCartAsync(userId, dbModel);
 
             var result = _mapper.Map<ServiceResult>(dbResponse);
+            return result;
+        }
+
+        public async Task<ServiceResult> RemoveFromUserCart(int userId, RemoveFromCartModel rfcModel)// no user validation because we retrieve userId via JWT
+        {
+            if (rfcModel.Quantity < 1)
+            {
+                return new ServiceResult()
+                {
+                    IsSuccessful = false,
+                    Message = "Quantity is less then 1."
+                };
+            }
+
+            var isProductPresent = await _productGenericRepository.IsPresentInDbAsync(p => p.Id == rfcModel.ProductId);
+            if (!isProductPresent)
+            {
+                return new ServiceResult()
+                {
+                    IsSuccessful = false,
+                    Message = "No product found."
+                };
+            }
+
+            var quantityDbResponse = await _usersRepository.GetQuantityOfProductInCartAsync(userId, rfcModel.ProductId);
+
+            DbResponse dbResponse;
+
+            if(quantityDbResponse.Data <= 1 || (quantityDbResponse.Data - rfcModel.Quantity) < 1)
+            {
+                dbResponse = await _usersRepository.RemoveProductSetFromUserCartAsync(userId, rfcModel.ProductId);
+            }
+            else
+            {
+                var dbModel = _mapper.Map<ProductToCartDbModel>(rfcModel);
+                dbModel.Quantity = quantityDbResponse.Data - rfcModel.Quantity;
+                dbResponse = await _usersRepository.SetProductToUserCartAsync(userId, dbModel);
+            }
+
+            var result = _mapper.Map<ServiceResult>(dbResponse);
+
             return result;
         }
     }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace DAL.Models
+namespace API.ViewModels
 {
-    public class ProductToCartDbModel
+    public class RemoveFromCartViewModel
     {
         public int ProductId { get; set; }
         public int Quantity { get; set; }

@@ -11,5 +11,6 @@ namespace BLL.Interfaces
         Task<ServiceResult> RegisterUserAsync(UserRegistrationModel newUser);
         Task<ServiceResult<string>> LoginUserAsync(UserLoggingInModel userModel);
         Task<ServiceResult> AddToUserCart(int userId, AddToCartModel atcModel);
+        Task<ServiceResult> RemoveFromUserCart(int userId, RemoveFromCartModel rfcModel);
     }
 }

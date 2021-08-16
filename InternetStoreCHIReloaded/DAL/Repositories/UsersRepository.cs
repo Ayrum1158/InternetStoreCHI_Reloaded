@@ -64,37 +64,37 @@ namespace DAL.Repositories
             }
         }
 
-        public async Task<DbResponse> AddProductToUserCartAsync(int userId, AddToCartDbModel addToCartDbModel)
+        public async Task<DbResponse> SetProductToUserCartAsync(int userId, ProductToCartDbModel productToCartDbModel)
         {
-            var dbResponse = new DbResponse();
+            var user = await GetUserWithCartAsync(userId);
 
-            var user = await FindFirstOrDefaultAsync(u => u.Id == userId, u => u.UserCart, u => u.UserCart.CartItems);
-
-            if(user.UserCart.CartItems.Any(ci => ci.ProductId == addToCartDbModel.ProductId))
+            if (user.UserCart.CartItems.Any(ci => ci.ProductId == productToCartDbModel.ProductId))
             {
-                var product = user.UserCart.CartItems.Where(ci => ci.ProductId == addToCartDbModel.ProductId).Single();
-                product.Quantity += addToCartDbModel.Quantity;
+                var product = user.UserCart.CartItems.Where(ci => ci.ProductId == productToCartDbModel.ProductId).Single();
+                product.Quantity = productToCartDbModel.Quantity;
             }
             else
             {
-                if (!DoesUserCartExist(userId))
+                if (!await DoesUserCartExistAsync(userId))
                 {
                     user.UserCart = new CartEntity() { UserId = userId };
                 }
 
                 user.UserCart.CartItems.Add(new ProductWithQuantityEntity()
                 {
-                    ProductId = addToCartDbModel.ProductId,
-                    Quantity = addToCartDbModel.Quantity,
+                    ProductId = productToCartDbModel.ProductId,
+                    Quantity = productToCartDbModel.Quantity,
                 });
             }
 
             bool saveSuccess = await SaveAsync();
 
+            var dbResponse = new DbResponse();
+
             if (saveSuccess)
             {
                 dbResponse.IsSuccessful = true;
-                dbResponse.Message = "Product added successfully!";
+                dbResponse.Message = "Product was set successfully!";
             }
             else
             {
@@ -105,9 +105,71 @@ namespace DAL.Repositories
             return dbResponse;
         }
 
-        private bool DoesUserCartExist(int userId)
+
+        public async Task<DbResponse> RemoveProductSetFromUserCartAsync(int userId, int productId)// removes entry from ProductWithQuantity table
         {
-            return _dbcontext.Carts.Any(c => c.UserId == userId);
+            var user = await GetUserWithCartAsync(userId);
+
+            DbResponse dbResponse = new DbResponse();
+
+            var productInCart = user.UserCart.CartItems.Where(p => p.ProductId == productId).FirstOrDefault();
+            if (productInCart != null)
+            {
+                user.UserCart.CartItems.Remove(productInCart);
+                _dbcontext.ProductsWithQuantity.Remove(productInCart);// also remove pwq entry
+
+                bool success = await UpdateAsync(user);
+
+                if (success)
+                {
+                    dbResponse.IsSuccessful = true;
+                    dbResponse.Message = "Product entry was removed successfuly!";
+                }
+                else
+                {
+                    dbResponse.IsSuccessful = false;
+                    dbResponse.Message = "Nothing has changed.";
+                }
+            }
+            else
+            {
+                dbResponse.IsSuccessful = false;
+                dbResponse.Message = "Product was not found in cart";
+            }
+
+            return dbResponse;
+        }
+
+        public async Task<DbResponse<int>> GetQuantityOfProductInCartAsync(int userId, int productId)
+        {
+            var user = await GetUserWithCartAsync(userId);
+            var product = user.UserCart.CartItems.Where(p => p.ProductId == productId).FirstOrDefault();
+
+            var dbResponse = new DbResponse<int>();
+
+            if (product != null)
+            {
+                dbResponse.IsSuccessful = true;
+                dbResponse.Message = "Product quantity retrieval success!";
+                dbResponse.Data = product.Quantity;
+            }
+            else
+            {
+                dbResponse.IsSuccessful = false;
+                dbResponse.Message = "Product was not found in cart";
+            }
+
+            return dbResponse;
+        }
+
+        private async Task<UserEntity> GetUserWithCartAsync(int userId)
+        {
+            return await FindFirstOrDefaultAsync(u => u.Id == userId, u => u.UserCart, u => u.UserCart.CartItems);
+        }
+
+        private async Task<bool> DoesUserCartExistAsync(int userId)
+        {
+            return await _dbcontext.Carts.AnyAsync(c => c.UserId == userId);
         }
     }
 }
