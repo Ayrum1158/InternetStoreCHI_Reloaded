@@ -65,7 +65,7 @@ namespace API.Controllers
         [Authorize]
         public async Task<GenericResponse> AddToCart(AddToCartViewModel atcViewModel)
         {
-            int userId = int.Parse(User.FindFirst("id").Value);
+            int userId = GetUserIdFrowJwt();
 
             var atcModel = _mapper.Map<AddToCartModel>(atcViewModel);
 
@@ -80,7 +80,7 @@ namespace API.Controllers
         [Authorize]
         public async Task<GenericResponse> RemoveFromCart(RemoveFromCartViewModel rfcViewModel)
         {
-            int userId = int.Parse(User.FindFirst("id").Value);
+            int userId = GetUserIdFrowJwt();
 
             var rfcModel = _mapper.Map<RemoveFromCartModel>(rfcViewModel);
 
@@ -89,6 +89,24 @@ namespace API.Controllers
             var response = _mapper.Map<GenericResponse>(result);
 
             return response;
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<GenericResponse> MakeAnOrder()
+        {
+            int userId = GetUserIdFrowJwt();
+
+            var result = await _usersService.MakeAnOrder(userId);
+
+            var response = _mapper.Map<GenericResponse>(result);
+
+            return response;
+        }
+
+        private int GetUserIdFrowJwt()
+        {
+            return int.Parse(User.FindFirst("id").Value);
         }
     }
 }

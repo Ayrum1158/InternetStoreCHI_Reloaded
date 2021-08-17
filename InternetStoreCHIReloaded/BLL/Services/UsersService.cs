@@ -161,5 +161,14 @@ namespace BLL.Services
 
             return result;
         }
+
+        public async Task<ServiceResult> MakeAnOrder(int userId)// no user validation because we retrieve userId via JWT
+        {
+            var dbResponse = await _usersRepository.MakeAnOrder(userId);
+
+            var result = _mapper.Map<ServiceResult>(dbResponse);
+
+            return result;
+        }
     }
 }

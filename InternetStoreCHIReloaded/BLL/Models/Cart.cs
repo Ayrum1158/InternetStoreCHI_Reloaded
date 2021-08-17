@@ -7,7 +7,6 @@ namespace BLL.Models
     public class Cart
     {
         public int UserId { get; set; }
-        public DateTime CreationDate { get; set; }
 
         // Cart items:
         public ICollection<ProductWithQuantity> CartItems { get; set; }

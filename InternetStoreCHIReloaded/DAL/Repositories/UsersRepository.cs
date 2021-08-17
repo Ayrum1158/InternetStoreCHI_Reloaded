@@ -20,8 +20,6 @@ namespace DAL.Repositories
         private readonly SignInManager<UserEntity> _signInManager;
         private readonly IMapper _mapper;
 
-        private DbSet<UserEntity> _users { get; set; }
-
         public UsersRepository(
             UserManager<UserEntity> userManager,
             SignInManager<UserEntity> signInManager,
@@ -29,8 +27,6 @@ namespace DAL.Repositories
 
             StoreContext dbcontext) : base(dbcontext)
         {
-            _users = _fieldOfWork;
-
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
@@ -46,6 +42,9 @@ namespace DAL.Repositories
 
             if (userCreateResult.Succeeded)
             {
+                userEntity.UserCart = new CartEntity() { UserId = userEntity.Id };
+                await SaveAsync();
+
                 response.IsSuccessful = true;
                 response.Message = "User registration success!";
                 return response;
@@ -75,11 +74,6 @@ namespace DAL.Repositories
             }
             else
             {
-                if (!await DoesUserCartExistAsync(userId))
-                {
-                    user.UserCart = new CartEntity() { UserId = userId };
-                }
-
                 user.UserCart.CartItems.Add(new ProductWithQuantityEntity()
                 {
                     ProductId = productToCartDbModel.ProductId,
@@ -104,7 +98,6 @@ namespace DAL.Repositories
 
             return dbResponse;
         }
-
 
         public async Task<DbResponse> RemoveProductSetFromUserCartAsync(int userId, int productId)// removes entry from ProductWithQuantity table
         {
@@ -162,14 +155,66 @@ namespace DAL.Repositories
             return dbResponse;
         }
 
+        public async Task<DbResponse> MakeAnOrder(int userId)
+        {
+            var user = await GetUserWithCartAsync(userId);
+
+            DbResponse dbResponse = new DbResponse();
+
+            if (!user.UserCart.CartItems.Any())// if no items in cart
+            {
+                dbResponse.IsSuccessful = false;
+                dbResponse.Message = "Cart is empty.";
+                return dbResponse;
+            }
+
+            // getting products only because can't include the product entities in user cart
+            var productIds = user.UserCart.CartItems.Select(i => i.Id).ToList();
+
+            var productsWithQuantity = await _dbcontext.ProductsWithQuantity.Where(p => productIds.Contains(p.Id)).Include(p => p.Product).ToListAsync();
+
+            DateTime orderCreationdate = DateTime.UtcNow;
+
+            var orderedProducts = productsWithQuantity.Select(pwq => new OrderedProductEntity()
+            {
+                OrderedDate = orderCreationdate,
+                OrderedPrice = pwq.Product.Price,
+                Product = pwq.Product,
+                Quantity = user.UserCart.CartItems.Where(i => i.ProductId == pwq.ProductId).First().Quantity
+            }).ToList();
+
+            OrderEntity newOrder = new OrderEntity()
+            {
+                CreationDate = orderCreationdate,
+                OrderItems = orderedProducts,
+                TotalSum = orderedProducts.Sum(p => p.OrderedPrice)
+            };
+
+            user.UserOrders.Add(newOrder);
+
+            _dbcontext.ProductsWithQuantity.RemoveRange(productsWithQuantity);
+
+            user.UserCart.CartItems.Clear();
+
+            bool success = await SaveAsync();
+
+            if(success)
+            {
+                dbResponse.IsSuccessful = true;
+                dbResponse.Message = "Successfuly made order!";
+            }
+            else
+            {
+                dbResponse.IsSuccessful = false;
+                dbResponse.Message = "Failed to make an order";
+            }
+
+            return dbResponse;
+        }
+
         private async Task<UserEntity> GetUserWithCartAsync(int userId)
         {
             return await FindFirstOrDefaultAsync(u => u.Id == userId, u => u.UserCart, u => u.UserCart.CartItems);
-        }
-
-        private async Task<bool> DoesUserCartExistAsync(int userId)
-        {
-            return await _dbcontext.Carts.AnyAsync(c => c.UserId == userId);
         }
     }
 }

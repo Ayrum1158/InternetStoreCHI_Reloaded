@@ -13,5 +13,6 @@ namespace DAL.Interfaces
         Task<DbResponse> SetProductToUserCartAsync(int userId, ProductToCartDbModel productToCartDbModel);
         Task<DbResponse> RemoveProductSetFromUserCartAsync(int userId, int productId);
         Task<DbResponse<int>> GetQuantityOfProductInCartAsync(int userId, int productId);
+        Task<DbResponse> MakeAnOrder(int userId);
     }
 }

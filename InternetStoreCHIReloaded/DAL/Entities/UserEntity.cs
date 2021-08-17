@@ -11,11 +11,12 @@ namespace DAL.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public virtual CartEntity UserCart { get; set; }
-        //public ICollection<CartItemsEntity> UserOrders { get; set; }
+        public ICollection<OrderEntity> UserOrders { get; set; }
 
         public UserEntity()
         {
             UserCart = new CartEntity();
+            UserOrders = new List<OrderEntity>();
         }
     }
 }

@@ -76,6 +76,10 @@ namespace API.Extensions
 
                 cfg.CreateMap<RemoveFromCartModel, ProductToCartDbModel>().ReverseMap();
                 cfg.CreateMap<RemoveFromCartModel, RemoveFromCartViewModel>().ReverseMap();
+
+                cfg.CreateMap<CartEntity, OrderEntity>()
+                .ForMember(oe => oe.OrderItems, opt => opt.MapFrom(ce => ce.CartItems))
+                .ReverseMap();
             },
             typeof(Startup));
         }
