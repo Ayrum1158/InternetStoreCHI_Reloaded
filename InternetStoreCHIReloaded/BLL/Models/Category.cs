@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BLL.Contracts
+namespace BLL.Models
 {
     public class Category
     {

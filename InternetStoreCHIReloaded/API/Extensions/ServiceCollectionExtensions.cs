@@ -1,5 +1,5 @@
 ﻿using API.ViewModels;
-using BLL.Contracts;
+using BLL.Models;
 using DAL.ConfigPOCOs;
 using DAL;
 using DAL.Entities;
@@ -26,6 +26,8 @@ namespace API.Extensions
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
             services.AddTransient<IProductsRepository, ProductsRepository>();
+
+            services.AddTransient<IUsersRepository, UsersRepository>();
         }
 
         public static void ConfigureAutomapper(this IServiceCollection services)
@@ -34,6 +36,8 @@ namespace API.Extensions
             {
                 cfg.CreateMap<ServiceResult, GenericResponse>().ReverseMap();
                 cfg.CreateMap(typeof(ServiceResult<>), typeof(GenericResponse<>)).ReverseMap();
+                cfg.CreateMap<DbResponse, ServiceResult>().ReverseMap();
+                cfg.CreateMap(typeof(DbResponse<>), typeof(ServiceResult<>)).ReverseMap();
 
                 // Category mapping:
 
@@ -53,6 +57,16 @@ namespace API.Extensions
 
                 cfg.CreateMap<ProductsFilter, ProductsFilterViewModel>().ReverseMap();
                 cfg.CreateMap<ProductsFilter, ProductRequestFilter>().ReverseMap();
+
+                cfg.CreateMap<UserRegistrationViewModel, UserRegistrationModel>().ReverseMap();
+
+                cfg.CreateMap<User, UserEntity>().ReverseMap();
+                cfg.CreateMap<UserRegistrationModel, UserEntity>().ReverseMap();
+                cfg.CreateMap<NewDbUserModel, UserRegistrationModel>().ReverseMap();
+                cfg.CreateMap<NewDbUserModel, UserEntity>().ReverseMap();
+
+                cfg.CreateMap<UserLoggingInModel, LoginViewModel>().ReverseMap();
+
             },
             typeof(Startup));
         }
