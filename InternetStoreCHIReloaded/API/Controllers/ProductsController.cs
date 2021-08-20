@@ -28,7 +28,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("Everything")]
+        [HttpGet("GetAll")]
         public async Task<GenericResponse<IEnumerable<ProductViewModel>>> Get()
         {
             var result = await _productService.GetProductsAsync();

@@ -11,8 +11,8 @@ namespace DAL.Entities
         public int Quantity { get; set; }
         public ProductEntity Product { get; set; }
         public int ProductId { get; set; }
-        public DateTime OrderedDate { get; set; }
-        public decimal OrderedPrice { get; set; }
+        public DateTime Date { get; set; }
+        public decimal Price { get; set; }
 
         public IEnumerable<OrderEntity> Orders { get; set; }// nav prop
     }

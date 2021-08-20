@@ -2,27 +2,24 @@
 using AutoMapper;
 using BLL.Interfaces;
 using BLL.Models;
-using DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class UsersController : JwtFeaturedController
+    public class UserCartController : JwtFeaturedController
     {
         private readonly IUsersService _usersService;
         private readonly IMapper _mapper;
 
-        public UsersController(
+        public UserCartController(
             IUsersService usersService,
             IMapper mapper)
         {
@@ -31,23 +28,32 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<GenericResponse> Register(UserRegistrationViewModel newUserVM)
+        [Authorize]
+        public async Task<GenericResponse> AddToCart(AddToCartViewModel atcViewModel)
         {
-            var newUserModel = _mapper.Map<UserRegistrationModel>(newUserVM);
+            int userId = GetUserId();
 
-            var result = await _usersService.RegisterUserAsync(newUserModel);
+            var atcModel = _mapper.Map<AddToCartModel>(atcViewModel);
+
+            var result = await _usersService.AddToUserCart(userId, atcModel);
 
             var response = _mapper.Map<GenericResponse>(result);
+
             return response;
         }
 
         [HttpPost]
-        public async Task<GenericResponse<string>> Login(LoginViewModel loginVM)
+        [Authorize]
+        public async Task<GenericResponse> RemoveFromCart(RemoveFromCartViewModel rfcViewModel)
         {
-            // no model state verification needed, LoginViewModel has data annotations that do this work
-            var loginModel = _mapper.Map<UserLoggingInModel>(loginVM);
-            var result = await _usersService.LoginUserAsync(loginModel);
-            var response = _mapper.Map<GenericResponse<string>>(result);
+            int userId = GetUserId();
+
+            var rfcModel = _mapper.Map<RemoveFromCartModel>(rfcViewModel);
+
+            var result = await _usersService.RemoveFromUserCart(userId, rfcModel);
+
+            var response = _mapper.Map<GenericResponse>(result);
+
             return response;
         }
     }

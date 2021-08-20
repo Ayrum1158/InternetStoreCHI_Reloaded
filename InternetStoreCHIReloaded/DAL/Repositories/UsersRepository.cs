@@ -17,18 +17,15 @@ namespace DAL.Repositories
     public class UsersRepository : GenericRepository<UserEntity>, IUsersRepository
     {
         private readonly UserManager<UserEntity> _userManager;
-        private readonly SignInManager<UserEntity> _signInManager;
         private readonly IMapper _mapper;
 
         public UsersRepository(
             UserManager<UserEntity> userManager,
-            SignInManager<UserEntity> signInManager,
             IMapper mapper,
 
             StoreContext dbcontext) : base(dbcontext)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _mapper = mapper;
         }
 
@@ -63,22 +60,23 @@ namespace DAL.Repositories
             }
         }
 
-        public async Task<DbResponse> SetProductToUserCartAsync(int userId, ProductToCartDbModel productToCartDbModel)
+        public async Task<DbResponse> SetProductToUserCartAsync(int userId, ProductToCartDbModel productToCartDbModel, bool userHasProductInCart)
         {
-            var user = await GetUserWithCartAsync(userId);
-
-            if (user.UserCart.CartItems.Any(ci => ci.ProductId == productToCartDbModel.ProductId))
+            if (userHasProductInCart)
             {
-                var product = user.UserCart.CartItems.Where(ci => ci.ProductId == productToCartDbModel.ProductId).Single();
+                var product = _dbcontext.Cartitems.Where(ci => ci.ProductId == productToCartDbModel.ProductId).Single();
                 product.Quantity = productToCartDbModel.Quantity;
             }
             else
             {
-                user.UserCart.CartItems.Add(new ProductWithQuantityEntity()
+                var newCartItem = _dbcontext.Cartitems.Add(new CartItemEntity()
                 {
                     ProductId = productToCartDbModel.ProductId,
-                    Quantity = productToCartDbModel.Quantity,
+                    Quantity = productToCartDbModel.Quantity
                 });
+
+                var user = _dbcontext.Users.Single(u => u.Id == userId);
+                user.UserCart.CartItems.Add(newCartItem.Entity);
             }
 
             bool saveSuccess = await SaveAsync();
@@ -99,35 +97,28 @@ namespace DAL.Repositories
             return dbResponse;
         }
 
-        public async Task<DbResponse> RemoveProductSetFromUserCartAsync(int userId, int productId)// removes entry from ProductWithQuantity table
+        public async Task<DbResponse> RemoveCartItemFromUserCartAsync(int userId, int productId)// removes entry from ProductWithQuantity table
         {
             var user = await GetUserWithCartAsync(userId);
 
             DbResponse dbResponse = new DbResponse();
 
             var productInCart = user.UserCart.CartItems.Where(p => p.ProductId == productId).FirstOrDefault();
-            if (productInCart != null)
+
+            user.UserCart.CartItems.Remove(productInCart);
+            _dbcontext.Cartitems.Remove(productInCart);// also remove cartItem entry
+
+            bool success = await UpdateAsync(user);
+
+            if (success)
             {
-                user.UserCart.CartItems.Remove(productInCart);
-                _dbcontext.ProductsWithQuantity.Remove(productInCart);// also remove pwq entry
-
-                bool success = await UpdateAsync(user);
-
-                if (success)
-                {
-                    dbResponse.IsSuccessful = true;
-                    dbResponse.Message = "Product entry was removed successfuly!";
-                }
-                else
-                {
-                    dbResponse.IsSuccessful = false;
-                    dbResponse.Message = "Nothing has changed.";
-                }
+                dbResponse.IsSuccessful = true;
+                dbResponse.Message = "Product entry was removed successfuly!";
             }
             else
             {
                 dbResponse.IsSuccessful = false;
-                dbResponse.Message = "Product was not found in cart";
+                dbResponse.Message = "Nothing has changed.";
             }
 
             return dbResponse;
@@ -157,7 +148,7 @@ namespace DAL.Repositories
 
         public async Task<DbResponse> MakeAnOrder(int userId)
         {
-            var user = await GetUserWithCartAsync(userId);
+            var user = await GetUserWithCartAndProductsAsync(userId);
 
             DbResponse dbResponse = new DbResponse();
 
@@ -168,37 +159,32 @@ namespace DAL.Repositories
                 return dbResponse;
             }
 
-            // getting products only because can't include the product entities in user cart
-            var productIds = user.UserCart.CartItems.Select(i => i.Id).ToList();
-
-            var productsWithQuantity = await _dbcontext.ProductsWithQuantity.Where(p => productIds.Contains(p.Id)).Include(p => p.Product).ToListAsync();
-
             DateTime orderCreationdate = DateTime.UtcNow;
 
-            var orderedProducts = productsWithQuantity.Select(pwq => new OrderedProductEntity()
+            var orderedProducts = user.UserCart.CartItems.Select(ci => new OrderedProductEntity()
             {
-                OrderedDate = orderCreationdate,
-                OrderedPrice = pwq.Product.Price,
-                Product = pwq.Product,
-                Quantity = user.UserCart.CartItems.Where(i => i.ProductId == pwq.ProductId).First().Quantity
+                Date = orderCreationdate,
+                Price = ci.Product.Price,
+                Product = ci.Product,
+                Quantity = user.UserCart.CartItems.Where(i => i.ProductId == ci.ProductId).First().Quantity
             }).ToList();
 
             OrderEntity newOrder = new OrderEntity()
             {
                 CreationDate = orderCreationdate,
                 OrderItems = orderedProducts,
-                TotalSum = orderedProducts.Sum(p => p.OrderedPrice)
+                TotalSum = orderedProducts.Sum(p => p.Price)
             };
 
             user.UserOrders.Add(newOrder);
 
-            _dbcontext.ProductsWithQuantity.RemoveRange(productsWithQuantity);
+            _dbcontext.Cartitems.RemoveRange(user.UserCart.CartItems);
 
             user.UserCart.CartItems.Clear();
 
             bool success = await SaveAsync();
 
-            if(success)
+            if (success)
             {
                 dbResponse.IsSuccessful = true;
                 dbResponse.Message = "Successfuly made order!";
@@ -212,9 +198,19 @@ namespace DAL.Repositories
             return dbResponse;
         }
 
-        private async Task<UserEntity> GetUserWithCartAsync(int userId)
+        public async Task<UserEntity> GetUserWithCartAsync(int userId)
         {
             return await FindFirstOrDefaultAsync(u => u.Id == userId, u => u.UserCart, u => u.UserCart.CartItems);
+        }
+
+        public async Task<UserEntity> GetUserWithCartAndProductsAsync(int userId)
+        {
+            return await _dbcontext.Users
+                .Include(u => u.UserCart)
+                .ThenInclude(uc => uc.CartItems)
+                .ThenInclude(ci => ci.Product)
+                .ThenInclude(p => p.Category)
+                .FirstOrDefaultAsync();
         }
     }
 }

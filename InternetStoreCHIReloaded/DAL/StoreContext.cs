@@ -22,7 +22,7 @@ namespace DAL
 
         public DbSet<CategoryEntity> Categories { get; set; }
         public DbSet<ProductEntity> Products { get; set; }
-        public DbSet<ProductWithQuantityEntity> ProductsWithQuantity { get; set; }
+        public DbSet<CartItemEntity> Cartitems { get; set; }
         public DbSet<CartEntity> Carts { get; set; }
         public DbSet<OrderedProductEntity> OrderedProducts { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }
@@ -49,9 +49,9 @@ namespace DAL
 
             modelBuilder.Entity<UserEntity>().HasOne(u => u.UserCart).WithOne(c => c.User).HasForeignKey<CartEntity>(c => c.UserId);
 
-            modelBuilder.Entity<ProductWithQuantityEntity>().HasOne(pwq => pwq.Product).WithMany().HasForeignKey(pwq => pwq.ProductId);
+            modelBuilder.Entity<CartItemEntity>().HasOne(ci => ci.Product).WithMany().HasForeignKey(ci => ci.ProductId);
 
-            modelBuilder.Entity<CartEntity>().HasMany(ce => ce.CartItems).WithMany(pwq => pwq.Carts);
+            modelBuilder.Entity<CartEntity>().HasMany(ce => ce.CartItems).WithMany(ci => ci.Carts);
 
             modelBuilder.Entity<OrderEntity>().HasMany(oe => oe.OrderItems).WithMany(ope => ope.Orders);
 

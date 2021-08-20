@@ -14,11 +14,11 @@ namespace DAL.Entities
         public UserEntity User { get; set; }
 
         // Cart items:
-        public ICollection<ProductWithQuantityEntity> CartItems { get; set; }
+        public ICollection<CartItemEntity> CartItems { get; set; }
 
         public CartEntity()// ctor
         {
-            CartItems = new List<ProductWithQuantityEntity>();
+            CartItems = new List<CartItemEntity>();
         }
     }
 }

@@ -9,11 +9,11 @@ namespace BLL.Models
         public int UserId { get; set; }
 
         // Cart items:
-        public ICollection<ProductWithQuantity> CartItems { get; set; }
+        public ICollection<CartItem> CartItems { get; set; }
 
         public Cart()
         {
-            CartItems = new List<ProductWithQuantity>();
+            CartItems = new List<CartItem>();
         }
     }
 }
