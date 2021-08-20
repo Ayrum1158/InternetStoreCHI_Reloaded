@@ -12,7 +12,7 @@ namespace DAL.Interfaces
         Task<DbResponse> RegisterUserAsync(NewUserDbModel newUser);
         Task<DbResponse> SetProductToUserCartAsync(int userId, ProductToCartDbModel productToCartDbModel, bool userHasProductInCart);
         Task<DbResponse> RemoveCartItemFromUserCartAsync(int userId, int productId);
-        Task<DbResponse<int>> GetQuantityOfProductInCartAsync(int userId, int productId);
+        Task<int?> GetQuantityOfProductInCartAsync(int userId, int productId);
         Task<DbResponse> MakeAnOrder(int userId);
         Task<UserEntity> GetUserWithCartAsync(int userId);
         Task<UserEntity> GetUserWithCartAndProductsAsync(int userId);

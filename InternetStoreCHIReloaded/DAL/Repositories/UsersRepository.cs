@@ -124,26 +124,19 @@ namespace DAL.Repositories
             return dbResponse;
         }
 
-        public async Task<DbResponse<int>> GetQuantityOfProductInCartAsync(int userId, int productId)
+        public async Task<int?> GetQuantityOfProductInCartAsync(int userId, int productId)
         {
             var user = await GetUserWithCartAsync(userId);
-            var product = user.UserCart.CartItems.Where(p => p.ProductId == productId).FirstOrDefault();
+            var product = user.UserCart.CartItems.FirstOrDefault(p => p.ProductId == productId);
 
-            var dbResponse = new DbResponse<int>();
+            int? result = null;
 
             if (product != null)
             {
-                dbResponse.IsSuccessful = true;
-                dbResponse.Message = "Product quantity retrieval success!";
-                dbResponse.Data = product.Quantity;
-            }
-            else
-            {
-                dbResponse.IsSuccessful = false;
-                dbResponse.Message = "Product was not found in cart";
+                result = product.Quantity;
             }
 
-            return dbResponse;
+            return result;
         }
 
         public async Task<DbResponse> MakeAnOrder(int userId)
