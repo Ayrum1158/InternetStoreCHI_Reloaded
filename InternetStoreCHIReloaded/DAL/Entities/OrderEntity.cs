@@ -15,8 +15,6 @@ namespace DAL.Entities
 
         // Order items:
         public ICollection<OrderedProductEntity> OrderItems { get; set; }
-        
-        public IEnumerable<UserEntity> UsersNav { get; set; }// nav prop
 
         public OrderEntity()
         {

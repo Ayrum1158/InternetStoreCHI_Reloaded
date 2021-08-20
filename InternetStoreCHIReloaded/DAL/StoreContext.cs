@@ -51,11 +51,11 @@ namespace DAL
 
             modelBuilder.Entity<CartItemEntity>().HasOne(ci => ci.Product).WithMany().HasForeignKey(ci => ci.ProductId);
 
-            modelBuilder.Entity<CartEntity>().HasMany(ce => ce.CartItems).WithMany(ci => ci.Carts);
+            modelBuilder.Entity<CartEntity>().HasMany(ce => ce.CartItems).WithOne();
 
-            modelBuilder.Entity<OrderEntity>().HasMany(oe => oe.OrderItems).WithMany(ope => ope.Orders);
+            modelBuilder.Entity<OrderEntity>().HasMany(oe => oe.OrderItems).WithOne();
 
-            modelBuilder.Entity<UserEntity>().HasMany(ue => ue.UserOrders).WithMany(oe => oe.UsersNav);
+            modelBuilder.Entity<UserEntity>().HasMany(ue => ue.UserOrders).WithOne();
 
             modelBuilder.Entity<OrderedProductEntity>().HasOne(ope => ope.Product).WithMany().HasForeignKey(ope => ope.ProductId);
 
