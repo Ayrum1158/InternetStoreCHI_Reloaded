@@ -14,7 +14,7 @@ namespace DAL.Repositories
     public class GenericRepository<T> : IGenericRepository<T> where T : class, IHasId, new()
     {
         protected readonly StoreContext _dbcontext;
-        protected DbSet<T> _fieldOfWork;
+        private DbSet<T> _fieldOfWork;
 
         public GenericRepository(StoreContext dbcontext)
         {
@@ -25,7 +25,7 @@ namespace DAL.Repositories
 
         public virtual async Task<DbResponse<T>> AddAsync(T entity)
         {
-            await _fieldOfWork.AddAsync(entity);
+            _fieldOfWork.Add(entity);
 
             bool success = await SaveAsync();
 
@@ -61,7 +61,6 @@ namespace DAL.Repositories
         public virtual async Task<bool> IsPresentInDbAsync(Expression<Func<T, bool>> expression)
         {
             var res = await _fieldOfWork.AnyAsync(expression);
-            //var res = (await FindFirstOrDefaultAsync(expression)) != null;
             return res;
         }
 

@@ -32,7 +32,6 @@ namespace API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
@@ -73,11 +72,8 @@ namespace API
 
             services.ConfigureAutomapper();
 
-            services.ConfigureRepositories();// generic and non-generic repositories
-
-            services.AddTransient<ICategoriesService, CategoriesService>();
-            services.AddTransient<IProductsService, ProductsService>();
-            services.AddTransient<IUsersService, UsersService>();
+            services.ConfigureRepositories();
+            services.ConfigureBLLServices();
 
             services.AddTransient<UserManager<UserEntity>>();
             services.AddTransient<SignInManager<UserEntity>>();
@@ -112,7 +108,6 @@ namespace API
             });// AddSwaggerGen end
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSwagger();

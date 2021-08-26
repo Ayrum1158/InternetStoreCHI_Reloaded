@@ -1,18 +1,16 @@
-﻿using DAL.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DAL.Entities
+namespace BLL.Models
 {
-    public class OrderedProductEntity : IHasId
+    public class OrderedProduct
     {
         public int Id { get; set; }
         public int Quantity { get; set; }
-        public ProductEntity Product { get; set; }
+        public Product Product { get; set; }
         public int ProductId { get; set; }
         public DateTime Date { get; set; }
         public decimal Price { get; set; }
-        public int OrderId { get; set; }
     }
 }

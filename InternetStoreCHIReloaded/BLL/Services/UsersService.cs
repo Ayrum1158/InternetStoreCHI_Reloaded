@@ -20,22 +20,19 @@ namespace BLL.Services
         private readonly IGenericRepository<UserEntity> _usersGenericRepository;
         private readonly UserManager<UserEntity> _userManager;
         private readonly IAccessTokenGenerator _tokenGenerator;
-        private readonly IGenericRepository<ProductEntity> _productGenericRepository;
 
         public UsersService(
             IMapper mapper,
             IUsersRepository usersRepository,
             IGenericRepository<UserEntity> usersGenericRepository,
             UserManager<UserEntity> userManager,
-            IAccessTokenGenerator tokenGenerator,
-            IGenericRepository<ProductEntity> productGenericRepository)
+            IAccessTokenGenerator tokenGenerator)
         {
             _mapper = mapper;
             _usersRepository = usersRepository;
             _usersGenericRepository = usersGenericRepository;
             _userManager = userManager;
             _tokenGenerator = tokenGenerator;
-            _productGenericRepository = productGenericRepository;
         }
 
         public async Task<ServiceResult> RegisterUserAsync(UserRegistrationModel newUserModel)
@@ -66,7 +63,6 @@ namespace BLL.Services
             var result = new ServiceResult<string>();
 
             var userEntity = await _usersGenericRepository.FindFirstOrDefaultAsync(u => u.UserName == loginModel.Username);
-
             if (userEntity == null)
             {
                 result.IsSuccessful = false;
@@ -79,7 +75,7 @@ namespace BLL.Services
                 var user = _mapper.Map<User>(userEntity);
 
                 result.IsSuccessful = true;
-                result.Message = "User logged in successfuly!";
+                result.Message = "User logged in successfully!";
                 result.Data = _tokenGenerator.GenerateToken(user);
                 return result;
             }
@@ -89,131 +85,6 @@ namespace BLL.Services
                 result.Message = "Check your login data.";
                 return result;
             }
-        }
-
-        public async Task<ServiceResult> AddToUserCart(int userId, AddToCartModel addToCartModel)// no user validation because we retrieve userId via JWT
-        {
-            if (addToCartModel.Quantity < 1)
-            {
-                return new ServiceResult()
-                {
-                    IsSuccessful = false,
-                    Message = "Quantity is less then 1."
-                };
-            }
-
-            var isProductPresent = await _productGenericRepository.IsPresentInDbAsync(p => p.Id == addToCartModel.ProductId);
-            if (!isProductPresent)
-            {
-                return new ServiceResult()
-                {
-                    IsSuccessful = false,
-                    Message = "No product found."
-                };
-            }
-
-            var userEntity = await _usersRepository.GetUserWithCartAsync(userId);
-
-            var user = _mapper.Map<User>(userEntity);
-
-            bool userHasProductInCart = user.UserCart.CartItems.Any(ci => ci.ProductId == addToCartModel.ProductId);
-
-            var dbModel = _mapper.Map<ProductToCartDbModel>(addToCartModel);
-
-            var quantityDbResponse = await _usersRepository.GetQuantityOfProductInCartAsync(userId, addToCartModel.ProductId);
-
-            if(quantityDbResponse == null)
-            {
-                return new ServiceResult()
-                {
-                    IsSuccessful = false,
-                    Message = "None of this item in cart."
-                };
-            }
-
-            dbModel.Quantity += (int)quantityDbResponse;
-            var dbResponse = await _usersRepository.SetProductToUserCartAsync(userId, dbModel, userHasProductInCart);
-
-            var result = _mapper.Map<ServiceResult>(dbResponse);
-
-            if (result.IsSuccessful)
-            {
-                result.Message = "Product was successfuly added!";
-            }
-
-            return result;
-        }
-
-        public async Task<ServiceResult> RemoveFromUserCart(int userId, RemoveFromCartModel removeFromCartModel)// no user validation because we retrieve userId via JWT
-        {
-            if (removeFromCartModel.Quantity < 1)
-            {
-                return new ServiceResult()
-                {
-                    IsSuccessful = false,
-                    Message = "Quantity is less then 1."
-                };
-            }
-
-            var isProductPresent = await _productGenericRepository.IsPresentInDbAsync(p => p.Id == removeFromCartModel.ProductId);
-
-            if (!isProductPresent)
-            {
-                return new ServiceResult()
-                {
-                    IsSuccessful = false,
-                    Message = "No product found."
-                };
-            }
-
-            var userEntity = await _usersRepository.GetUserWithCartAndProductsAsync(userId);
-
-            var user = _mapper.Map<User>(userEntity);
-
-            bool userHasProductInCart = user.UserCart.CartItems.Any(ci => ci.ProductId == removeFromCartModel.ProductId);
-
-            DbResponse dbResponse;
-
-            if (!userHasProductInCart)
-            {
-                return new ServiceResult()
-                {
-                    IsSuccessful = false,
-                    Message = "There is none of this product in cart"
-                };
-            }
-
-            var productQuantityInCart = user.UserCart.CartItems.Single(ci => ci.ProductId == removeFromCartModel.ProductId).Quantity;
-
-            bool removeRowConditionResult = productQuantityInCart <= 1 || (productQuantityInCart - removeFromCartModel.Quantity) < 1;
-
-            if (removeRowConditionResult)// removing CartItems row in Db
-            {
-                dbResponse = await _usersRepository.RemoveCartItemFromUserCartAsync(userId, removeFromCartModel.ProductId);
-            }
-            else// setting lesser quantity
-            {
-                var dbModel = _mapper.Map<ProductToCartDbModel>(removeFromCartModel);
-                dbModel.Quantity = productQuantityInCart - removeFromCartModel.Quantity;
-                dbResponse = await _usersRepository.SetProductToUserCartAsync(userId, dbModel, true);
-            }
-
-            var result = _mapper.Map<ServiceResult>(dbResponse);
-
-            if (!removeRowConditionResult)
-                if (result.IsSuccessful)
-                    result.Message = "Product quantity removed successfuly!";
-
-            return result;
-        }
-
-        public async Task<ServiceResult> MakeAnOrder(int userId)// no user validation because we retrieve userId via JWT
-        {
-            var dbResponse = await _usersRepository.MakeAnOrder(userId);
-
-            var result = _mapper.Map<ServiceResult>(dbResponse);
-
-            return result;
         }
     }
 }

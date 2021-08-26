@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Text;
 using DAL.Repositories;
 using DAL.Models;
+using BLL.Interfaces;
+using BLL.Services;
 
 namespace API.Extensions
 {
@@ -23,11 +25,20 @@ namespace API.Extensions
 
         public static void ConfigureRepositories(this IServiceCollection services)
         {
-            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IProductsRepository, ProductsRepository>();
+            services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<ICartsRepository, CartsRepository>();
+            services.AddScoped<IOrdersRepository, OrdersRepository>();
+        }
 
-            services.AddTransient<IProductsRepository, ProductsRepository>();
-
-            services.AddTransient<IUsersRepository, UsersRepository>();
+        public static void ConfigureBLLServices(this IServiceCollection services)
+        {
+            services.AddTransient<ICategoriesService, CategoriesService>();
+            services.AddTransient<IProductsService, ProductsService>();
+            services.AddTransient<IUsersService, UsersService>();
+            services.AddTransient<ICartsService, CartsService>();
+            services.AddTransient<IOrdersService, OrdersService>();
         }
 
         public static void ConfigureAutomapper(this IServiceCollection services)
@@ -78,8 +89,11 @@ namespace API.Extensions
                 cfg.CreateMap<RemoveFromCartModel, RemoveFromCartViewModel>().ReverseMap();
 
                 cfg.CreateMap<CartEntity, OrderEntity>()
-                .ForMember(oe => oe.OrderItems, opt => opt.MapFrom(ce => ce.CartItems))
+                .ForMember(oe => oe.OrderedProducts, opt => opt.MapFrom(ce => ce.CartItems))
                 .ReverseMap();
+
+                cfg.CreateMap<OrderedProduct, OrderedProductEntity>().ReverseMap();
+                cfg.CreateMap<Order, OrderEntity>().ReverseMap();
             },
             typeof(Startup));
         }

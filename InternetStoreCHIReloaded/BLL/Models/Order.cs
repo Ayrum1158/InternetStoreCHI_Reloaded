@@ -1,11 +1,10 @@
-﻿using DAL.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DAL.Entities
+namespace BLL.Models
 {
-    public class OrderEntity : IHasId
+    public class Order
     {
         public int Id { get; set; }
 
@@ -14,13 +13,13 @@ namespace DAL.Entities
         public decimal TotalSum { get; set; }
 
         // Order items:
-        public ICollection<OrderedProductEntity> OrderedProducts { get; set; }
+        public ICollection<OrderedProduct> OrderedProducts { get; set; }
 
         public int UserId { get; set; }
 
-        public OrderEntity()
+        public Order()
         {
-            OrderedProducts = new List<OrderedProductEntity>();
+            OrderedProducts = new List<OrderedProduct>();
         }
     }
 }

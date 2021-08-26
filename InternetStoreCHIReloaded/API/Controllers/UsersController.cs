@@ -31,9 +31,9 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<GenericResponse> Register(UserRegistrationViewModel newUserVM)
+        public async Task<GenericResponse> Register(UserRegistrationViewModel newUserViewModel)
         {
-            var newUserModel = _mapper.Map<UserRegistrationModel>(newUserVM);
+            var newUserModel = _mapper.Map<UserRegistrationModel>(newUserViewModel);
 
             var result = await _usersService.RegisterUserAsync(newUserModel);
 
@@ -42,10 +42,10 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<GenericResponse<string>> Login(LoginViewModel loginVM)
+        public async Task<GenericResponse<string>> Login(LoginViewModel loginViewModel)
         {
             // no model state verification needed, LoginViewModel has data annotations that do this work
-            var loginModel = _mapper.Map<UserLoggingInModel>(loginVM);
+            var loginModel = _mapper.Map<UserLoggingInModel>(loginViewModel);
             var result = await _usersService.LoginUserAsync(loginModel);
             var response = _mapper.Map<GenericResponse<string>>(result);
             return response;

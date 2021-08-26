@@ -15,14 +15,14 @@ namespace API.Controllers
     [ApiController]
     public class UserOrderController : JwtFeaturedController
     {
-        private readonly IUsersService _usersService;
+        private readonly IOrdersService _ordersService;
         private readonly IMapper _mapper;
 
         public UserOrderController(
-            IUsersService usersService,
+            IOrdersService ordersService,
             IMapper mapper)
         {
-            _usersService = usersService;
+            _ordersService = ordersService;
             _mapper = mapper;
         }
 
@@ -31,11 +31,8 @@ namespace API.Controllers
         public async Task<GenericResponse> MakeAnOrder()
         {
             int userId = GetUserId();
-
-            var result = await _usersService.MakeAnOrder(userId);
-
+            var result = await _ordersService.MakeAnOrder(userId);
             var response = _mapper.Map<GenericResponse>(result);
-
             return response;
         }
     }
