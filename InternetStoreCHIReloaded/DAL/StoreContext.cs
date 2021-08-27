@@ -24,7 +24,7 @@ namespace DAL
         public DbSet<ProductEntity> Products { get; set; }
         public DbSet<CartItemEntity> Cartitems { get; set; }
         public DbSet<CartEntity> Carts { get; set; }
-        public DbSet<OrderedProductEntity> OrderedProducts { get; set; }
+        public DbSet<OrderedItemEntity> OrderedItems { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -53,11 +53,11 @@ namespace DAL
 
             modelBuilder.Entity<CartEntity>().HasMany(ce => ce.CartItems).WithOne().HasForeignKey(cie => cie.CartId);
 
-            modelBuilder.Entity<OrderEntity>().HasMany(oe => oe.OrderedProducts).WithOne().HasForeignKey(ope => ope.OrderId);
+            modelBuilder.Entity<OrderEntity>().HasMany(oe => oe.OrderedItems).WithOne().HasForeignKey(ope => ope.OrderId);
 
             modelBuilder.Entity<UserEntity>().HasMany(ue => ue.UserOrders).WithOne().HasForeignKey(oe => oe.UserId);
 
-            modelBuilder.Entity<OrderedProductEntity>().HasOne(ope => ope.Product).WithMany().HasForeignKey(ope => ope.ProductId);
+            modelBuilder.Entity<OrderedItemEntity>().HasOne(ope => ope.Product).WithMany().HasForeignKey(ope => ope.ProductId);
 
             modelBuilder.Seed();
         }

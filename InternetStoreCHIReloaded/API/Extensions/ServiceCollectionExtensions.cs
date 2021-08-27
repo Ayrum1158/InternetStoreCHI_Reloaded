@@ -49,50 +49,30 @@ namespace API.Extensions
                 cfg.CreateMap(typeof(ServiceResult<>), typeof(GenericResponse<>)).ReverseMap();
                 cfg.CreateMap<DbResponse, ServiceResult>().ReverseMap();
                 cfg.CreateMap(typeof(DbResponse<>), typeof(ServiceResult<>)).ReverseMap();
-
-                // Category mapping:
-
                 cfg.CreateMap<Category, CategoryViewModel>().ReverseMap();
-
                 cfg.CreateMap<CategoryEntity, Category>()
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Description))
                 .ReverseMap();
-
-                // Product mapping:
-
                 cfg.CreateMap<Product, ProductViewModel>().ReverseMap();
-
                 cfg.CreateMap<ProductEntity, Product>().ReverseMap();
-
                 cfg.CreateMap<ProductsFilter, ProductsFilterViewModel>().ReverseMap();
                 cfg.CreateMap<ProductsFilter, ProductRequestFilter>().ReverseMap();
-
                 cfg.CreateMap<UserRegistrationViewModel, UserRegistrationModel>().ReverseMap();
-
                 cfg.CreateMap<User, UserEntity>().ReverseMap();
                 cfg.CreateMap<UserRegistrationModel, UserEntity>().ReverseMap();
                 cfg.CreateMap<NewUserDbModel, UserRegistrationModel>().ReverseMap();
                 cfg.CreateMap<NewUserDbModel, UserEntity>().ReverseMap();
-
                 cfg.CreateMap<UserLoggingInModel, LoginViewModel>().ReverseMap();
-
                 cfg.CreateMap<CartItem, CartItemEntity>().ReverseMap();
-
                 cfg.CreateMap<AddToCartModel, AddToCartViewModel>().ReverseMap();
-                cfg.CreateMap<AddToCartModel, ProductToCartDbModel>().ReverseMap();
-
                 cfg.CreateMap<Cart, CartEntity>().ReverseMap();
-
-                cfg.CreateMap<RemoveFromCartModel, ProductToCartDbModel>().ReverseMap();
                 cfg.CreateMap<RemoveFromCartModel, RemoveFromCartViewModel>().ReverseMap();
-
                 cfg.CreateMap<CartEntity, OrderEntity>()
-                .ForMember(oe => oe.OrderedProducts, opt => opt.MapFrom(ce => ce.CartItems))
+                .ForMember(oe => oe.OrderedItems, opt => opt.MapFrom(ce => ce.CartItems))
                 .ReverseMap();
-
-                cfg.CreateMap<OrderedProduct, OrderedProductEntity>().ReverseMap();
+                cfg.CreateMap<OrderedItem, OrderedItemEntity>().ReverseMap();
                 cfg.CreateMap<Order, OrderEntity>().ReverseMap();
             },
             typeof(Startup));

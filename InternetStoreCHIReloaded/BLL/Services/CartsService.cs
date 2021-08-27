@@ -33,19 +33,30 @@ namespace BLL.Services
             if (!validationResult.IsSuccessful)
                 return validationResult;
 
-            var quantityDbResponse = await _cartsRepository.GetQuantityOfProductInCartAsync(userId, addToCartModel.ProductId);
-
-            bool userHasProductInCart = true;
-            if (quantityDbResponse == null)
-                userHasProductInCart = false;
-
-            var dbModel = _mapper.Map<ProductToCartDbModel>(addToCartModel);
-            dbModel.Quantity += quantityDbResponse ?? 0;
-            var dbResponse = await _cartsRepository.SetProductToUserCartAsync(userId, dbModel, userHasProductInCart);
-            var result = _mapper.Map<ServiceResult>(dbResponse);
+            int cartId = await _cartsRepository.GetCartIdFromUserIdAsync(userId);
+            var cartItemEntity = await _cartsRepository.GetItemInUserCartAsync(cartId, addToCartModel.ProductId);
+            bool userHasProductInCart = cartItemEntity != null;
+            bool success;
+            if (userHasProductInCart)// updating with more quantity
+            {
+                cartItemEntity.Quantity += addToCartModel.Quantity;
+                success = await _cartsRepository.UpdateAsync(cartItemEntity);
+            }
+            else// adding new one
+            {
+                var cartItem = new CartItem()
+                {
+                    ProductId = addToCartModel.ProductId,
+                    Quantity = addToCartModel.Quantity
+                };
+                var newCartItemEntity = _mapper.Map<CartItemEntity>(cartItem);
+                newCartItemEntity.CartId = cartId;
+                success = await _cartsRepository.AddAsync(newCartItemEntity);
+            }
+            var result = new ServiceResult() { IsSuccessful = success };
             if (result.IsSuccessful)
             {
-                result.Message = "Product was successfully added!";
+                result.Message = "Product(s) added successfully!";
             }
             return result;
         }
@@ -56,29 +67,29 @@ namespace BLL.Services
             if (!validationResult.IsSuccessful)
                 return validationResult;
 
-            int? quantityDbResponse = await _cartsRepository.GetQuantityOfProductInCartAsync(userId, removeFromCartModel.ProductId);
-            if (quantityDbResponse == null)
+            int cartId = await _cartsRepository.GetCartIdFromUserIdAsync(userId);
+            var cartItemEntity = await _cartsRepository.GetItemInUserCartAsync(cartId, removeFromCartModel.ProductId);
+            if(cartItemEntity == null)
             {
                 return new ServiceResult()
                 {
                     IsSuccessful = false,
-                    Message = "There is none of this product in cart."
+                    Message = "No such product in cart"
                 };
             }
-            int productQuantityInCart = (int)quantityDbResponse;
-            bool removeRowConditionResult = productQuantityInCart <= 1 || (productQuantityInCart - removeFromCartModel.Quantity) < 1;
-            DbResponse dbResponse;
+            int itemQuantityInCart = cartItemEntity.Quantity;
+            bool removeRowConditionResult = itemQuantityInCart <= 1 || (itemQuantityInCart - removeFromCartModel.Quantity) < 1;
+            bool success;
             if (removeRowConditionResult)// removing CartItems row in Db
             {
-                dbResponse = await _cartsRepository.RemoveCartItemFromUserCartAsync(userId, removeFromCartModel.ProductId);
+                success = await _cartsRepository.RemoveCartItemFromUserCartAsync(cartItemEntity);
             }
             else// setting lesser quantity
             {
-                var dbModel = _mapper.Map<ProductToCartDbModel>(removeFromCartModel);
-                dbModel.Quantity = productQuantityInCart - removeFromCartModel.Quantity;
-                dbResponse = await _cartsRepository.SetProductToUserCartAsync(userId, dbModel, true);
+                cartItemEntity.Quantity -= removeFromCartModel.Quantity;
+                success = await _cartsRepository.UpdateAsync(cartItemEntity);
             }
-            var result = _mapper.Map<ServiceResult>(dbResponse);
+            var result = new ServiceResult() { IsSuccessful = success };
             if (result.IsSuccessful)
                 result.Message = "Product quantity removed successfully!";
 

@@ -14,13 +14,13 @@ namespace DAL.Entities
         public decimal TotalSum { get; set; }
 
         // Order items:
-        public ICollection<OrderedProductEntity> OrderedProducts { get; set; }
+        public ICollection<OrderedItemEntity> OrderedItems { get; set; }
 
         public int UserId { get; set; }
 
         public OrderEntity()
         {
-            OrderedProducts = new List<OrderedProductEntity>();
+            OrderedItems = new List<OrderedItemEntity>();
         }
     }
 }

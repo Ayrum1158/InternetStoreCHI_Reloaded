@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DAL.Entities
 {
-    public class OrderedProductEntity : IHasId
+    public class OrderedItemEntity : IHasId
     {
         public int Id { get; set; }
         public int Quantity { get; set; }

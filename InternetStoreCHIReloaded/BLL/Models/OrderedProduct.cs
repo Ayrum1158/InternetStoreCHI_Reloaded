@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BLL.Models
 {
-    public class OrderedProduct
+    public class OrderedItem
     {
         public int Id { get; set; }
         public int Quantity { get; set; }

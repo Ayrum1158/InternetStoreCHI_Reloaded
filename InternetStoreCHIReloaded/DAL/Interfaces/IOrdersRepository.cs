@@ -9,6 +9,6 @@ namespace DAL.Interfaces
 {
     public interface IOrdersRepository
     {
-        Task<DbResponse> MakeAnOrder(int userId, OrderEntity order);
+        Task<DbResponse> MakeAnOrder(List<CartItemEntity> cartItemsToRemove, OrderEntity order);
     }
 }

@@ -17,20 +17,15 @@ namespace DAL.Repositories
         {
         }
 
-        public async Task<DbResponse> MakeAnOrder(int userId, OrderEntity order)
+        public async Task<DbResponse> MakeAnOrder(List<CartItemEntity> cartItemsToRemove, OrderEntity order)
         {
-            var cart = await _dbcontext.Carts.SingleAsync(c => c.UserId == userId);
-            cart.CartItems.Clear();
-
+            _dbcontext.Cartitems.RemoveRange(cartItemsToRemove);
             _dbcontext.Orders.Add(order);
-
             bool success = await SaveAsync();
-
             DbResponse dbResponse = new DbResponse()
             {
                 IsSuccessful = success
             };
-
             return dbResponse;
         }
     }

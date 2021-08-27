@@ -13,13 +13,13 @@ namespace BLL.Models
         public decimal TotalSum { get; set; }
 
         // Order items:
-        public ICollection<OrderedProduct> OrderedProducts { get; set; }
+        public ICollection<OrderedItem> OrderedItems { get; set; }
 
         public int UserId { get; set; }
 
         public Order()
         {
-            OrderedProducts = new List<OrderedProduct>();
+            OrderedItems = new List<OrderedItem>();
         }
     }
 }

@@ -42,7 +42,7 @@ namespace BLL.Services
             var cartItemEntities = await _cartsRepository.GetAllItemsInUserCartAsync(userId);
             var cartItems = _mapper.Map<List<CartItem>>(cartItemEntities);
             DateTime orderCreationdate = DateTime.UtcNow;
-            List<OrderedProduct> orderedProducts = cartItems.Select(ci => new OrderedProduct()
+            List<OrderedItem> orderedItems = cartItems.Select(ci => new OrderedItem()
             {
                 Date = orderCreationdate,
                 Price = ci.Product.Price,
@@ -52,12 +52,12 @@ namespace BLL.Services
             Order order = new Order()
             {
                 CreationDate = orderCreationdate,
-                OrderedProducts = orderedProducts,
-                TotalSum = orderedProducts.Sum(op => op.Price),
+                OrderedItems = orderedItems,
+                TotalSum = orderedItems.Sum(op => op.Price),
                 UserId = userId
             };
             OrderEntity orderEntity = _mapper.Map<OrderEntity>(order);
-            var dbResponse = await _ordersRepository.MakeAnOrder(userId, orderEntity);
+            var dbResponse = await _ordersRepository.MakeAnOrder(cartItemEntities, orderEntity);
             var result = _mapper.Map<ServiceResult>(dbResponse);
             if(result.IsSuccessful)
             {
