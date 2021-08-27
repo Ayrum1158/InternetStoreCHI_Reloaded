@@ -20,42 +20,47 @@ namespace DAL.Repositories
 
         public async Task<bool> AddAsync(CartItemEntity cartEntity)
         {
-            _dbcontext.Cartitems.Add(cartEntity);
+            _dbContext.Cartitems.Add(cartEntity);
             return await SaveAsync();
         }
 
         public async Task<bool> UpdateAsync(CartItemEntity cartEntity)
         {
-            _dbcontext.Cartitems.Update(cartEntity);
+            _dbContext.Cartitems.Update(cartEntity);
             return await SaveAsync();
         }
 
         public async Task<CartItemEntity> GetItemInUserCartAsync(int cartId, int productId)
         {
-            return await _dbcontext.Cartitems.SingleOrDefaultAsync(ci => ci.CartId == cartId && ci.ProductId == productId);
+            return await _dbContext.Cartitems.SingleOrDefaultAsync(ci => ci.CartId == cartId && ci.ProductId == productId);
+        }
+
+        public async Task<int> GetAmountOfItemsInUserCartAsync(int cartId)
+        {
+            return await _dbContext.Carts.Include(c => c.CartItems).Where(c => c.Id == cartId).Select(c => c.CartItems.Count).SingleAsync();
         }
 
         public async Task<List<CartItemEntity>> GetAllItemsInUserCartAsync(int userId)
         {
             var cartId = await GetCartIdFromUserIdAsync(userId);
-            var cartItems = await _dbcontext.Cartitems.Include(ci => ci.Product).Where(ci => ci.CartId == cartId).ToListAsync();
+            var cartItems = await _dbContext.Cartitems.Include(ci => ci.Product).Where(ci => ci.CartId == cartId).ToListAsync();
             return cartItems;
         }
 
         public async Task<int> GetCartIdFromUserIdAsync(int userId)
         {
-            return await _dbcontext.Carts.Where(c => c.UserId == userId).Select(c => c.Id).SingleAsync();
+            return await _dbContext.Carts.Where(c => c.UserId == userId).Select(c => c.Id).SingleAsync();
         }
 
         public async Task<bool> IsUserCartEmptyAsync(int userId)
         {
             int cartId = await GetCartIdFromUserIdAsync(userId);
-            return ! await _dbcontext.Cartitems.AnyAsync(ci => ci.CartId == cartId);
+            return ! await _dbContext.Cartitems.AnyAsync(ci => ci.CartId == cartId);
         }
 
         public async Task<bool> RemoveCartItemFromUserCartAsync(CartItemEntity cartItem)// removes entry from ProductWithQuantity table
         {
-            _dbcontext.Cartitems.Remove(cartItem);
+            _dbContext.Cartitems.Remove(cartItem);
             return await SaveAsync();
         }
     }

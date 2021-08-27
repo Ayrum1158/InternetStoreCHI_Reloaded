@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using BLL.ConfigPOCOs;
 using BLL.Interfaces;
 using BLL.Models;
 using DAL.Entities;
 using DAL.Interfaces;
 using DAL.Models;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +19,17 @@ namespace BLL.Services
         private readonly IMapper _mapper;
         private readonly IGenericRepository<ProductEntity> _productGenericRepository;
         private readonly ICartsRepository _cartsRepository;
+        private readonly CartsConfig _cartsConfig;
 
         public CartsService(IMapper mapper,
             IGenericRepository<ProductEntity> productGenericRepository,
-            ICartsRepository cartsRepository)
+            ICartsRepository cartsRepository,
+            IOptionsMonitor<CartsConfig> cartsConfig)
         {
             _mapper = mapper;
             _productGenericRepository = productGenericRepository;
             _cartsRepository = cartsRepository;
+            _cartsConfig = cartsConfig.CurrentValue;
         }
 
         public async Task<ServiceResult> AddToUserCart(int userId, AddToCartModel addToCartModel)// no user validation because we retrieve userId via JWT
@@ -36,10 +41,19 @@ namespace BLL.Services
             int cartId = await _cartsRepository.GetCartIdFromUserIdAsync(userId);
             var cartItemEntity = await _cartsRepository.GetItemInUserCartAsync(cartId, addToCartModel.ProductId);
             bool userHasProductInCart = cartItemEntity != null;
+
+            int futureQuantity = addToCartModel.Quantity;
+            if (userHasProductInCart)
+                futureQuantity += cartItemEntity.Quantity;
+
+            var businessRulesCheckResult = await CheckBusinessRules(cartId, futureQuantity);
+            if (!businessRulesCheckResult.IsSuccessful)
+                return businessRulesCheckResult;
+
             bool success;
             if (userHasProductInCart)// updating with more quantity
             {
-                cartItemEntity.Quantity += addToCartModel.Quantity;
+                cartItemEntity.Quantity = futureQuantity;
                 success = await _cartsRepository.UpdateAsync(cartItemEntity);
             }
             else// adding new one
@@ -47,7 +61,7 @@ namespace BLL.Services
                 var cartItem = new CartItem()
                 {
                     ProductId = addToCartModel.ProductId,
-                    Quantity = addToCartModel.Quantity
+                    Quantity = futureQuantity
                 };
                 var newCartItemEntity = _mapper.Map<CartItemEntity>(cartItem);
                 newCartItemEntity.CartId = cartId;
@@ -69,7 +83,7 @@ namespace BLL.Services
 
             int cartId = await _cartsRepository.GetCartIdFromUserIdAsync(userId);
             var cartItemEntity = await _cartsRepository.GetItemInUserCartAsync(cartId, removeFromCartModel.ProductId);
-            if(cartItemEntity == null)
+            if (cartItemEntity == null)
             {
                 return new ServiceResult()
                 {
@@ -117,6 +131,28 @@ namespace BLL.Services
                 };
             }
 
+            return new ServiceResult() { IsSuccessful = true };
+        }
+
+        private async Task<ServiceResult> CheckBusinessRules(int cartId, int futureQuantity)
+        {
+            if (futureQuantity > _cartsConfig.MaximumItemQuantity)
+            {
+                return new ServiceResult()
+                {
+                    IsSuccessful = false,
+                    Message = $"Quantity of one individual item cannot exceed {_cartsConfig.MaximumItemQuantity}."
+                };
+            }
+            int itemsInCart = await _cartsRepository.GetAmountOfItemsInUserCartAsync(cartId);
+            if (itemsInCart > _cartsConfig.MaximumItemsInCart)
+            {
+                return new ServiceResult()
+                {
+                    IsSuccessful = false,
+                    Message = $"Amount of individual items in cart cannot exceed {_cartsConfig.MaximumItemsInCart}."
+                };
+            }
             return new ServiceResult() { IsSuccessful = true };
         }
     }

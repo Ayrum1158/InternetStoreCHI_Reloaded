@@ -44,6 +44,9 @@ namespace API
             services.Configure<JwtConfig>(jwtConfigSection);
             var jwtConfig = jwtConfigSection.Get<JwtConfig>();
 
+            var cartsConfigSection = Configuration.GetSection(nameof(CartsConfig));
+            services.Configure<CartsConfig>(cartsConfigSection);
+
             services.AddIdentity<UserEntity, IdentityRole<int>>()
                 .AddEntityFrameworkStores<StoreContext>();
 

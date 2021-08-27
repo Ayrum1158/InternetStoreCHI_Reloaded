@@ -13,12 +13,12 @@ namespace DAL.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class, IHasId, new()
     {
-        protected readonly StoreContext _dbcontext;
+        protected readonly StoreContext _dbContext;
         private DbSet<T> _fieldOfWork;
 
         public GenericRepository(StoreContext dbcontext)
         {
-            _dbcontext = dbcontext;
+            _dbContext = dbcontext;
 
             _fieldOfWork = dbcontext.Set<T>();
         }
@@ -87,7 +87,7 @@ namespace DAL.Repositories
 
         protected async Task<bool> SaveAsync()
         {
-            return await _dbcontext.SaveChangesAsync() > 0;
+            return await _dbContext.SaveChangesAsync() > 0;
         }
 
         public virtual async Task<bool> UpdateAsync(T entity)

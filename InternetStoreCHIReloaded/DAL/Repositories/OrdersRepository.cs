@@ -19,8 +19,8 @@ namespace DAL.Repositories
 
         public async Task<DbResponse> MakeAnOrder(List<CartItemEntity> cartItemsToRemove, OrderEntity order)
         {
-            _dbcontext.Cartitems.RemoveRange(cartItemsToRemove);
-            _dbcontext.Orders.Add(order);
+            _dbContext.Cartitems.RemoveRange(cartItemsToRemove);
+            _dbContext.Orders.Add(order);
             bool success = await SaveAsync();
             DbResponse dbResponse = new DbResponse()
             {

@@ -19,7 +19,7 @@ namespace DAL.Repositories
 
         public override async Task<bool> UpdateAsync(ProductEntity entity)
         {
-            _dbcontext.Products.Update(entity).Property(pe => pe.CreatedDate).IsModified = false;
+            _dbContext.Products.Update(entity).Property(pe => pe.CreatedDate).IsModified = false;
             return await SaveAsync();
         }
 
@@ -28,7 +28,7 @@ namespace DAL.Repositories
             int pageSize,
             int page)
         {
-            var productsIQ = _dbcontext.Products.AsQueryable();
+            var productsIQ = _dbContext.Products.AsQueryable();
 
             if (filter.CategoryId != null)
                 productsIQ = productsIQ.Where((pe) => pe.CategoryId == filter.CategoryId);
