@@ -1,0 +1,8 @@
+{
+  "JwtConfig": {
+    "SecretKey": "z_H4BAb_nCpQJBoSryzGNmi4U2NCFFIinINttZTq5Xx3sYtridMiOzYOAPoCx2sA9EsIlYZBhB9y038gcje0EurvhlWisfMvaDLjnVTzjolyr-y_8aaw4B7xeeY_HDB-RN4bkzAUmaCpt6uk6mc8diRSmQD8G6IuUzz895yN0xU",
+    "AccessTokenExpirationMinutes": 180,
+    "Issuer": "https://localhost:5001",
+    "Audience": "https://localhost:5001"
+  }
+}

@@ -34,8 +34,6 @@ namespace API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
-
             var dbConfigSection = Configuration.GetSection(nameof(DBConfig));
             services.Configure<DBConfig>(dbConfigSection);// add DBConfig to IOptionsManager
             var dbConfig = dbConfigSection.Get<DBConfig>();
@@ -127,8 +125,6 @@ namespace API
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseCors(builder => builder.AllowAnyOrigin());
 
             app.UseAuthentication();
 
