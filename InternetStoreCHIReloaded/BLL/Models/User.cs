@@ -9,5 +9,11 @@ namespace BLL.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public Cart Cart { get; set; }
+
+        public User()
+        {
+            Cart = new Cart();
+        }
     }
 }

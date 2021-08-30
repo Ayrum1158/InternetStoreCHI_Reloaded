@@ -28,7 +28,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("Everything")]
+        [HttpGet("GetAll")]
         public async Task<GenericResponse<IEnumerable<ProductViewModel>>> Get()
         {
             var result = await _productService.GetProductsAsync();
@@ -45,9 +45,9 @@ namespace API.Controllers
         }
 
         [HttpPost("{pageSize}/{page}")]
-        public async Task<GenericResponse<List<ProductViewModel>>> Post(int pageSize, int page, ProductsFilterViewModel filterVM)
+        public async Task<GenericResponse<List<ProductViewModel>>> Post(int pageSize, int page, ProductsFilterViewModel filterViewModel)
         {
-            var filter = _mapper.Map<ProductsFilter>(filterVM);
+            var filter = _mapper.Map<ProductsFilter>(filterViewModel);
 
             var result = await _productService.GetProductsFilteredAsync(pageSize, page, filter);
 

@@ -8,7 +8,7 @@ namespace BLL.Interfaces
 {
     public interface IProductsService
     {
-        Task<ServiceResult<Product>> AddProductAsync(Product newProduct);
+        Task<ServiceResult<Product>> AddProductAsync(Product product);
         Task<ServiceResult> DeleteProductAsync(int id);
         Task<ServiceResult<Product>> GetProductAsync(int id);
         Task<ServiceResult<List<Product>>> GetProductsAsync();
@@ -16,6 +16,6 @@ namespace BLL.Interfaces
             int pageSize,
             int page,
             ProductsFilter filter);
-        Task<ServiceResult<Product>> UpdateProductAsync(Product newProductInfo);
+        Task<ServiceResult<Product>> UpdateProductAsync(Product product);
     }
 }

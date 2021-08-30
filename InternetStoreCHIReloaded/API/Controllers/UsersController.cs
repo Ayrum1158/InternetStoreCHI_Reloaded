@@ -3,36 +3,37 @@ using AutoMapper;
 using BLL.Interfaces;
 using BLL.Models;
 using DAL.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController : JwtFeaturedController
     {
         private readonly IUsersService _usersService;
         private readonly IMapper _mapper;
 
         public UsersController(
             IUsersService usersService,
-            IMapper mapper
-            )
+            IMapper mapper)
         {
             _usersService = usersService;
-            _mapper = mapper;;
+            _mapper = mapper;
         }
 
         [HttpPost]
-        public async Task<GenericResponse> Register(UserRegistrationViewModel newUserVM)
+        public async Task<GenericResponse> Register(UserRegistrationViewModel newUserViewModel)
         {
-            var newUserModel = _mapper.Map<UserRegistrationModel>(newUserVM);
+            var newUserModel = _mapper.Map<UserRegistrationModel>(newUserViewModel);
 
             var result = await _usersService.RegisterUserAsync(newUserModel);
 
@@ -41,28 +42,13 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<GenericResponse<string>> Login(LoginViewModel loginVM)
+        public async Task<GenericResponse<string>> Login(LoginViewModel loginViewModel)
         {
-            if(ModelState.IsValid)
-            {
-                var loginModel = _mapper.Map<UserLoggingInModel>(loginVM);
-                var result = await _usersService.LoginUserAsync(loginModel);
-                var response = _mapper.Map<GenericResponse<string>>(result);
-                return response;
-            }
-            else
-            {
-                var response = new GenericResponse<string>();
-                response.IsSuccessful = false;
-                response.Message = "Login data is not valid.";
-                return response;
-            }
-        }
-
-        [HttpPost]
-        public async Task Logout()
-        {
-            await _usersService.LogoutUserAsync();
+            // no model state verification needed, LoginViewModel has data annotations that do this work
+            var loginModel = _mapper.Map<UserLoggingInModel>(loginViewModel);
+            var result = await _usersService.LoginUserAsync(loginModel);
+            var response = _mapper.Map<GenericResponse<string>>(result);
+            return response;
         }
     }
 }

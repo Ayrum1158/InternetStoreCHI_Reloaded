@@ -7,6 +7,7 @@ using DAL.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +18,6 @@ namespace BLL.Services
         private readonly IMapper _mapper;
         private readonly IUsersRepository _usersRepository;
         private readonly IGenericRepository<UserEntity> _usersGenericRepository;
-        private readonly SignInManager<UserEntity> _signInManager;
         private readonly UserManager<UserEntity> _userManager;
         private readonly IAccessTokenGenerator _tokenGenerator;
 
@@ -25,14 +25,12 @@ namespace BLL.Services
             IMapper mapper,
             IUsersRepository usersRepository,
             IGenericRepository<UserEntity> usersGenericRepository,
-            SignInManager<UserEntity> signInManager,
             UserManager<UserEntity> userManager,
             IAccessTokenGenerator tokenGenerator)
         {
             _mapper = mapper;
             _usersRepository = usersRepository;
             _usersGenericRepository = usersGenericRepository;
-            _signInManager = signInManager;
             _userManager = userManager;
             _tokenGenerator = tokenGenerator;
         }
@@ -41,7 +39,7 @@ namespace BLL.Services
         {
             ServiceResult result;
 
-            if(newUserModel.Password != newUserModel.ConfirmPassword)
+            if (newUserModel.Password != newUserModel.ConfirmPassword)
             {
                 result = new ServiceResult()
                 {
@@ -51,7 +49,7 @@ namespace BLL.Services
                 return result;
             }
 
-            var newDbUserModel = _mapper.Map<NewDbUserModel>(newUserModel);
+            var newDbUserModel = _mapper.Map<NewUserDbModel>(newUserModel);
 
             var dbResponse = await _usersRepository.RegisterUserAsync(newDbUserModel);
 
@@ -65,20 +63,19 @@ namespace BLL.Services
             var result = new ServiceResult<string>();
 
             var userEntity = await _usersGenericRepository.FindFirstOrDefaultAsync(u => u.UserName == loginModel.Username);
-
-            if(userEntity == null)
+            if (userEntity == null)
             {
                 result.IsSuccessful = false;
                 result.Message = "Check your login data.";
                 return result;
             }
 
-            if(await _userManager.CheckPasswordAsync(userEntity, loginModel.Password))
+            if (await _userManager.CheckPasswordAsync(userEntity, loginModel.Password))
             {
                 var user = _mapper.Map<User>(userEntity);
 
                 result.IsSuccessful = true;
-                result.Message = "User logged in successfuly!";
+                result.Message = "User logged in successfully!";
                 result.Data = _tokenGenerator.GenerateToken(user);
                 return result;
             }

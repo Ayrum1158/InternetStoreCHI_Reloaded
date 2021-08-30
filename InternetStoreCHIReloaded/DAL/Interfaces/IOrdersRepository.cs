@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace DAL.Interfaces
 {
-    public interface IUsersRepository
+    public interface IOrdersRepository
     {
-        Task<DbResponse> RegisterUserAsync(NewUserDbModel newUser);
+        Task<DbResponse> MakeAnOrder(List<CartItemEntity> cartItemsToRemove, OrderEntity order);
     }
 }

@@ -3,30 +3,33 @@ using DAL.Entities;
 using DAL.Interfaces;
 using DAL.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DAL.Repositories
 {
-    public class UsersRepository : IUsersRepository
+    public class UsersRepository : GenericRepository<UserEntity>, IUsersRepository
     {
         private readonly UserManager<UserEntity> _userManager;
-        private readonly SignInManager<UserEntity> _signInManager;
         private readonly IMapper _mapper;
 
         public UsersRepository(
             UserManager<UserEntity> userManager,
-            SignInManager<UserEntity> signInManager,
-            IMapper mapper)
+            IMapper mapper,
+
+            StoreContext dbcontext) : base(dbcontext)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _mapper = mapper;
         }
 
-        public async Task<DbResponse> RegisterUserAsync(NewDbUserModel newUser)
+        public async Task<DbResponse> RegisterUserAsync(NewUserDbModel newUser)
         {
             var userEntity = _mapper.Map<UserEntity>(newUser);
 
@@ -36,6 +39,9 @@ namespace DAL.Repositories
 
             if (userCreateResult.Succeeded)
             {
+                userEntity.UserCart = new CartEntity() { UserId = userEntity.Id };
+                await SaveAsync();
+
                 response.IsSuccessful = true;
                 response.Message = "User registration success!";
                 return response;

@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Text;
 using DAL.Repositories;
 using DAL.Models;
+using BLL.Interfaces;
+using BLL.Services;
 
 namespace API.Extensions
 {
@@ -23,11 +25,20 @@ namespace API.Extensions
 
         public static void ConfigureRepositories(this IServiceCollection services)
         {
-            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IProductsRepository, ProductsRepository>();
+            services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<ICartsRepository, CartsRepository>();
+            services.AddScoped<IOrdersRepository, OrdersRepository>();
+        }
 
-            services.AddTransient<IProductsRepository, ProductsRepository>();
-
-            services.AddTransient<IUsersRepository, UsersRepository>();
+        public static void ConfigureBLLServices(this IServiceCollection services)
+        {
+            services.AddTransient<ICategoriesService, CategoriesService>();
+            services.AddTransient<IProductsService, ProductsService>();
+            services.AddTransient<IUsersService, UsersService>();
+            services.AddTransient<ICartsService, CartsService>();
+            services.AddTransient<IOrdersService, OrdersService>();
         }
 
         public static void ConfigureAutomapper(this IServiceCollection services)
@@ -38,35 +49,31 @@ namespace API.Extensions
                 cfg.CreateMap(typeof(ServiceResult<>), typeof(GenericResponse<>)).ReverseMap();
                 cfg.CreateMap<DbResponse, ServiceResult>().ReverseMap();
                 cfg.CreateMap(typeof(DbResponse<>), typeof(ServiceResult<>)).ReverseMap();
-
-                // Category mapping:
-
                 cfg.CreateMap<Category, CategoryViewModel>().ReverseMap();
-
                 cfg.CreateMap<CategoryEntity, Category>()
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Description))
                 .ReverseMap();
-
-                // Product mapping:
-
                 cfg.CreateMap<Product, ProductViewModel>().ReverseMap();
-
                 cfg.CreateMap<ProductEntity, Product>().ReverseMap();
-
                 cfg.CreateMap<ProductsFilter, ProductsFilterViewModel>().ReverseMap();
                 cfg.CreateMap<ProductsFilter, ProductRequestFilter>().ReverseMap();
-
                 cfg.CreateMap<UserRegistrationViewModel, UserRegistrationModel>().ReverseMap();
-
                 cfg.CreateMap<User, UserEntity>().ReverseMap();
                 cfg.CreateMap<UserRegistrationModel, UserEntity>().ReverseMap();
-                cfg.CreateMap<NewDbUserModel, UserRegistrationModel>().ReverseMap();
-                cfg.CreateMap<NewDbUserModel, UserEntity>().ReverseMap();
-
+                cfg.CreateMap<NewUserDbModel, UserRegistrationModel>().ReverseMap();
+                cfg.CreateMap<NewUserDbModel, UserEntity>().ReverseMap();
                 cfg.CreateMap<UserLoggingInModel, LoginViewModel>().ReverseMap();
-
+                cfg.CreateMap<CartItem, CartItemEntity>().ReverseMap();
+                cfg.CreateMap<AddToCartModel, AddToCartViewModel>().ReverseMap();
+                cfg.CreateMap<Cart, CartEntity>().ReverseMap();
+                cfg.CreateMap<RemoveFromCartModel, RemoveFromCartViewModel>().ReverseMap();
+                cfg.CreateMap<CartEntity, OrderEntity>()
+                .ForMember(oe => oe.OrderedItems, opt => opt.MapFrom(ce => ce.CartItems))
+                .ReverseMap();
+                cfg.CreateMap<OrderedItem, OrderedItemEntity>().ReverseMap();
+                cfg.CreateMap<Order, OrderEntity>().ReverseMap();
             },
             typeof(Startup));
         }

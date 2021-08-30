@@ -13,19 +13,19 @@ namespace DAL.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class, IHasId, new()
     {
-        protected readonly StoreContext _dbcontext;
-        protected DbSet<T> _fieldOfWork;
+        protected readonly StoreContext _dbContext;
+        private DbSet<T> _fieldOfWork;
 
         public GenericRepository(StoreContext dbcontext)
         {
-            _dbcontext = dbcontext;
+            _dbContext = dbcontext;
 
             _fieldOfWork = dbcontext.Set<T>();
         }
 
         public virtual async Task<DbResponse<T>> AddAsync(T entity)
         {
-            await _fieldOfWork.AddAsync(entity);
+            _fieldOfWork.Add(entity);
 
             bool success = await SaveAsync();
 
@@ -41,9 +41,16 @@ namespace DAL.Repositories
             return await Task.Run(() => _fieldOfWork.Where(predicate).ToList());
         }
 
-        public virtual async Task<T> FindFirstOrDefaultAsync(Expression<Func<T, bool>> expression)
+        public virtual async Task<T> FindFirstOrDefaultAsync(Expression<Func<T, bool>> whereExpression, params Expression<Func<T, object>>[] includeProperties)
         {
-            return await _fieldOfWork.FirstOrDefaultAsync(expression);
+            IQueryable<T> query = _fieldOfWork.Where(whereExpression);
+
+            foreach (var prop in includeProperties)
+            {
+                query = query.Include(prop);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public virtual async Task<IEnumerable<T>> GetAllAsync()
@@ -53,7 +60,7 @@ namespace DAL.Repositories
 
         public virtual async Task<bool> IsPresentInDbAsync(Expression<Func<T, bool>> expression)
         {
-            var res = (await FindFirstOrDefaultAsync(expression)) != null;
+            var res = await _fieldOfWork.AnyAsync(expression);
             return res;
         }
 
@@ -80,7 +87,7 @@ namespace DAL.Repositories
 
         protected async Task<bool> SaveAsync()
         {
-            return await _dbcontext.SaveChangesAsync() > 0;
+            return await _dbContext.SaveChangesAsync() > 0;
         }
 
         public virtual async Task<bool> UpdateAsync(T entity)
