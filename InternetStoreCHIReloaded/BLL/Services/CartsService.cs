@@ -145,7 +145,7 @@ namespace BLL.Services
                 };
             }
             int itemsInCart = await _cartsRepository.GetAmountOfItemsInUserCartAsync(cartId);
-            if (itemsInCart > _cartsConfig.MaximumItemsInCart)
+            if (itemsInCart >= _cartsConfig.MaximumItemsInCart)
             {
                 return new ServiceResult()
                 {

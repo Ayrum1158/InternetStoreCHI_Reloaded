@@ -422,6 +422,7 @@ namespace BLL.Tests
             Assert.Equal($"Quantity of one individual item cannot exceed {cartsConfig.MaximumItemQuantity}.", actual.Message);
         }
 
+        [Fact]
         public async Task AddToUserCartAsync_InputedValidDataExceededMaximumUniqueItemsInCart_ExpectedSuccessFalse()
         {
             var cartEntity = new CartEntity
@@ -524,7 +525,7 @@ namespace BLL.Tests
             // assert:
 
             Assert.False(actual.IsSuccessful);
-            Assert.Equal($"Quantity of one individual item cannot exceed {cartsConfig.MaximumItemQuantity}.", actual.Message);
+            Assert.Equal($"Amount of individual items in cart cannot exceed {cartsConfig.MaximumItemsInCart}.", actual.Message);
         }
     }
 }
