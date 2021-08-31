@@ -32,7 +32,7 @@ namespace BLL.Services
             _cartsConfig = cartsConfig.CurrentValue;
         }
 
-        public async Task<ServiceResult> AddToUserCart(int userId, AddToCartModel addToCartModel)// no user validation because we retrieve userId via JWT
+        public async Task<ServiceResult> AddToUserCartAsync(int userId, AddToCartModel addToCartModel)// no user validation because we retrieve userId via JWT
         {
             var validationResult = await ValidateModelAsync(addToCartModel);
             if (!validationResult.IsSuccessful)
@@ -46,7 +46,7 @@ namespace BLL.Services
             if (userHasProductInCart)
                 futureQuantity += cartItemEntity.Quantity;
 
-            var businessRulesCheckResult = await CheckBusinessRules(cartId, futureQuantity);
+            var businessRulesCheckResult = await CheckBusinessRulesAsync(cartId, futureQuantity);
             if (!businessRulesCheckResult.IsSuccessful)
                 return businessRulesCheckResult;
 
@@ -134,7 +134,7 @@ namespace BLL.Services
             return new ServiceResult() { IsSuccessful = true };
         }
 
-        private async Task<ServiceResult> CheckBusinessRules(int cartId, int futureQuantity)
+        private async Task<ServiceResult> CheckBusinessRulesAsync(int cartId, int futureQuantity)
         {
             if (futureQuantity > _cartsConfig.MaximumItemQuantity)
             {

@@ -33,7 +33,7 @@ namespace API.Controllers
         {
             int userId = GetUserId();
             var atcModel = _mapper.Map<AddToCartModel>(atcViewModel);
-            var result = await _cartsService.AddToUserCart(userId, atcModel);
+            var result = await _cartsService.AddToUserCartAsync(userId, atcModel);
             var response = _mapper.Map<GenericResponse>(result);
             return response;
         }

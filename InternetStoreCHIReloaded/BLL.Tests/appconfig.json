@@ -4,5 +4,9 @@
     "AccessTokenExpirationMinutes": 180,
     "Issuer": "https://localhost:5001",
     "Audience": "https://localhost:5001"
+  },
+  "CartsConfig": {
+    "MaximumItemQuantity": 10,
+    "MaximumItemsInCart": 5
   }
 }

@@ -30,6 +30,8 @@ namespace BLL.Tests
 
             var jwtConfigSection = Configuration.GetSection(nameof(JwtConfig));
             services.Configure<JwtConfig>(jwtConfigSection);
+            var cartsConfigSection = Configuration.GetSection(nameof(CartsConfig));
+            services.Configure<CartsConfig>(cartsConfigSection);
 
             services.AddDbContext<StoreContext>(x => x.UseInMemoryDatabase(Guid.NewGuid().ToString()));
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
