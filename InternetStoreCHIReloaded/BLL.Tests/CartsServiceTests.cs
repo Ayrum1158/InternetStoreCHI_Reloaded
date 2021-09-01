@@ -58,7 +58,7 @@ namespace BLL.Tests
             var userCartItems = new List<CartItemEntity>();
             var cartEntity = new CartEntity
             {
-                CartItems = new List<CartItemEntity>(),
+                CartItems = userCartItems,
                 Id = 1,
                 UserId = 1,
                 User = new UserEntity
@@ -172,7 +172,7 @@ namespace BLL.Tests
             };
             var cartEntity = new CartEntity
             {
-                CartItems = new List<CartItemEntity>(),
+                CartItems = userCartItems,
                 Id = 1,
                 UserId = 1,
                 User = new UserEntity
@@ -526,6 +526,313 @@ namespace BLL.Tests
 
             Assert.False(actual.IsSuccessful);
             Assert.Equal($"Amount of individual items in cart cannot exceed {cartsConfig.MaximumItemsInCart}.", actual.Message);
+        }
+
+        [Fact]
+        public async Task RemoveFromUserCart_InputedValidDataItemInCartExistsUpdateCalled_ExpectedSuccessTrue()
+        {
+            // arrange:
+
+            var timeNow = DateTime.UtcNow;
+            var products = new List<ProductEntity>()
+            {
+                new ProductEntity
+                {
+                    Id = 1,
+                    CategoryId = 1,
+                    CreatedDate = timeNow,
+                    UpdatedDate = timeNow,
+                    Description = "Product1Desc",
+                    Name = "Product1",
+                    Price = 123
+                }
+            };
+
+            var userCartItems = new List<CartItemEntity>()
+            {
+                new CartItemEntity
+                {
+                    Id = 1,
+                    CartId = 1,
+                    ProductId = 1,
+                    Quantity = 8
+                }
+            };
+
+            var cartEntity = new CartEntity
+            {
+                CartItems = userCartItems,
+                Id = 1,
+                UserId = 1,
+                User = new UserEntity
+                {
+                    Id = 1
+                }
+            };
+
+            var cartsConfig = new CartsConfig
+            {
+                MaximumItemQuantity = 10,
+                MaximumItemsInCart = 1
+            };
+
+            var productGenericRepositoryMock = new Mock<IGenericRepository<ProductEntity>>();
+            productGenericRepositoryMock
+                .Setup(pgr => pgr.IsPresentInDbAsync(It.IsAny<Expression<Func<ProductEntity, bool>>>()))
+                .ReturnsAsync((Expression<Func<ProductEntity, bool>> expr) => products.Any(expr.Compile()));
+            var cartsRepositoryMock = new Mock<ICartsRepository>();
+            cartsRepositoryMock
+                .Setup(cr => cr.GetCartIdFromUserIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(() => 1);
+            cartsRepositoryMock
+                .Setup(cr => cr.GetItemInUserCartAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync((int cartId, int productId) =>
+                    userCartItems.SingleOrDefault((ci) => ci.CartId == cartId && ci.ProductId == productId));
+            cartsRepositoryMock
+                .Setup(cr => cr.UpdateAsync(It.IsAny<CartItemEntity>()))
+                .ReturnsAsync((CartItemEntity entity) =>
+                {
+                    var cartItem = userCartItems.SingleOrDefault(i => i.ProductId == entity.ProductId);
+                    if (cartItem == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        userCartItems.Remove(cartItem);
+                        userCartItems.Add(entity);
+                        return true;
+                    }
+                });
+            var cartsConfigMock = new Mock<IOptionsMonitor<CartsConfig>>();
+            cartsConfigMock.Setup(cc => cc.CurrentValue).Returns(cartsConfig);
+
+            var cartsService = new CartsService(
+                _mapper,
+                productGenericRepositoryMock.Object,
+                cartsRepositoryMock.Object,
+                cartsConfigMock.Object);
+
+            var removeFromUserCartModel = new RemoveFromCartModel
+            {
+                ProductId = 1,
+                Quantity = 3
+            };
+
+            // act:
+
+            var actual = await cartsService.RemoveFromUserCartAsync(1, removeFromUserCartModel);
+
+            // assert:
+
+            Assert.True(actual.IsSuccessful);
+            Assert.Equal("Product quantity removed successfully!", actual.Message);
+        }
+
+        [Fact]
+        public async Task RemoveFromUserCart_InputedValidDataItemInCartExistsRemoveCartItemFromUserCartCalled_ExpectedSuccessTrue()
+        {
+            var timeNow = DateTime.UtcNow;
+            var products = new List<ProductEntity>()
+            {
+                new ProductEntity
+                {
+                    Id = 1,
+                    CategoryId = 1,
+                    CreatedDate = timeNow,
+                    UpdatedDate = timeNow,
+                    Description = "Product1Desc",
+                    Name = "Product1",
+                    Price = 123
+                }
+            };
+
+            var userCartItems = new List<CartItemEntity>()
+            {
+                new CartItemEntity
+                {
+                    Id = 1,
+                    CartId = 1,
+                    ProductId = 1,
+                    Quantity = 2
+                }
+            };
+
+            var cartEntity = new CartEntity
+            {
+                CartItems = userCartItems,
+                Id = 1,
+                UserId = 1,
+                User = new UserEntity
+                {
+                    Id = 1
+                }
+            };
+
+            var cartsConfig = new CartsConfig
+            {
+                MaximumItemQuantity = 10,
+                MaximumItemsInCart = 1
+            };
+
+            var productGenericRepositoryMock = new Mock<IGenericRepository<ProductEntity>>();
+            productGenericRepositoryMock
+                .Setup(pgr => pgr.IsPresentInDbAsync(It.IsAny<Expression<Func<ProductEntity, bool>>>()))
+                .ReturnsAsync((Expression<Func<ProductEntity, bool>> expr) => products.Any(expr.Compile()));
+            var cartsRepositoryMock = new Mock<ICartsRepository>();
+            cartsRepositoryMock
+                .Setup(cr => cr.GetCartIdFromUserIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(() => 1);
+            cartsRepositoryMock
+                .Setup(cr => cr.GetItemInUserCartAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync((int cartId, int productId) =>
+                    userCartItems.SingleOrDefault((ci) => ci.CartId == cartId && ci.ProductId == productId));
+            cartsRepositoryMock
+                .Setup(cr => cr.RemoveCartItemFromUserCartAsync(It.IsAny<CartItemEntity>()))
+                .ReturnsAsync((CartItemEntity entity) =>
+                {
+                    if (entity.CartId == cartEntity.UserId)
+                    {
+                        CartItemEntity cartItem = userCartItems.SingleOrDefault((ci) => ci.ProductId == entity.ProductId);
+                        if (cartItem != null)
+                        {
+                            userCartItems.Remove(cartItem);
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            var cartsConfigMock = new Mock<IOptionsMonitor<CartsConfig>>();
+            cartsConfigMock.Setup(cc => cc.CurrentValue).Returns(cartsConfig);
+
+            var cartsService = new CartsService(
+                _mapper,
+                productGenericRepositoryMock.Object,
+                cartsRepositoryMock.Object,
+                cartsConfigMock.Object);
+
+            var removeFromUserCartModel = new RemoveFromCartModel
+            {
+                ProductId = 1,
+                Quantity = 2
+            };
+
+            // act:
+
+            var actual = await cartsService.RemoveFromUserCartAsync(1, removeFromUserCartModel);
+
+            // assert:
+
+            Assert.True(actual.IsSuccessful);
+            Assert.Equal("Product quantity removed successfully!", actual.Message);
+        }
+
+        [Fact]
+        public async Task RemoveFromUserCart_InputedInvalidDataQuantityTooLow_ExpectedSuccessFalse()
+        {
+            var removeFromUserCartModel = new RemoveFromCartModel
+            {
+                ProductId = 1,
+                Quantity = 0
+            };
+
+            var cartsConfigMock = new Mock<IOptionsMonitor<CartsConfig>>();
+            cartsConfigMock.Setup(cc => cc.CurrentValue).Returns(() => null);
+
+            var cartsService = new CartsService(
+                _mapper,
+                null,
+                null,
+                cartsConfigMock.Object);
+
+            var actual = await cartsService.RemoveFromUserCartAsync(1, removeFromUserCartModel);
+
+            Assert.False(actual.IsSuccessful);
+            Assert.Equal("Quantity is less then 1.", actual.Message);
+        }
+
+        [Fact]
+        public async Task RemoveFromUserCart_InputedInvalidDataProductIdNotExisting_ExpectedSuccessFalse()
+        {
+            var products = new List<ProductEntity>();
+
+            var productGenericRepositoryMock = new Mock<IGenericRepository<ProductEntity>>();
+            productGenericRepositoryMock
+                .Setup(pgr => pgr.IsPresentInDbAsync(It.IsAny<Expression<Func<ProductEntity, bool>>>()))
+                .ReturnsAsync((Expression<Func<ProductEntity, bool>> expr) => products.Any(expr.Compile()));
+
+            var removeFromUserCartModel = new RemoveFromCartModel
+            {
+                ProductId = 1,
+                Quantity = 2
+            };
+
+            var cartsConfigMock = new Mock<IOptionsMonitor<CartsConfig>>();
+            cartsConfigMock.Setup(cc => cc.CurrentValue).Returns(() => null);
+
+            var cartsService = new CartsService(
+                _mapper,
+                productGenericRepositoryMock.Object,
+                null,
+                cartsConfigMock.Object);
+
+            var actual = await cartsService.RemoveFromUserCartAsync(1, removeFromUserCartModel);
+
+            Assert.False(actual.IsSuccessful);
+            Assert.Equal("No product found.", actual.Message);
+        }
+
+        [Fact]
+        public async Task RemoveFromUserCart_InputedValidDataNoItemInCart_ExpectedSuccessFalse()
+        {
+            var removeFromUserCartModel = new RemoveFromCartModel
+            {
+                ProductId = 1,
+                Quantity = 1
+            };
+
+            var timeNow = DateTime.UtcNow;
+            var products = new List<ProductEntity>()
+            {
+                new ProductEntity
+                {
+                    Id = 1,
+                    CategoryId = 1,
+                    CreatedDate = timeNow,
+                    UpdatedDate = timeNow,
+                    Description = "Product1Desc",
+                    Name = "Product1",
+                    Price = 123
+                }
+            };
+
+            var userCartItems = new List<CartItemEntity>();
+
+            var cartsConfigMock = new Mock<IOptionsMonitor<CartsConfig>>();
+            cartsConfigMock.Setup(cc => cc.CurrentValue).Returns(() => null);
+            var productGenericRepositoryMock = new Mock<IGenericRepository<ProductEntity>>();
+            productGenericRepositoryMock
+                .Setup(pgr => pgr.IsPresentInDbAsync(It.IsAny<Expression<Func<ProductEntity, bool>>>()))
+                .ReturnsAsync((Expression<Func<ProductEntity, bool>> expr) => products.Any(expr.Compile()));
+            var cartsRepositoryMock = new Mock<ICartsRepository>();
+            cartsRepositoryMock
+                .Setup(cr => cr.GetCartIdFromUserIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(() => 1);
+            cartsRepositoryMock
+                .Setup(cr => cr.GetItemInUserCartAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync((int cartId, int productId) =>
+                    userCartItems.SingleOrDefault((ci) => ci.CartId == cartId && ci.ProductId == productId));
+
+            var cartsService = new CartsService(
+                _mapper,
+                productGenericRepositoryMock.Object,
+                cartsRepositoryMock.Object,
+                cartsConfigMock.Object);
+
+            var actual = await cartsService.RemoveFromUserCartAsync(1, removeFromUserCartModel);
+
+            Assert.False(actual.IsSuccessful);
+            Assert.Equal("No such product in cart.", actual.Message);
         }
     }
 }

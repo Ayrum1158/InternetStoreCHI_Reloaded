@@ -75,7 +75,7 @@ namespace BLL.Services
             return result;
         }
 
-        public async Task<ServiceResult> RemoveFromUserCart(int userId, RemoveFromCartModel removeFromCartModel)// no user validation because we retrieve userId via JWT
+        public async Task<ServiceResult> RemoveFromUserCartAsync(int userId, RemoveFromCartModel removeFromCartModel)// no user validation because we retrieve userId via JWT
         {
             var validationResult = await ValidateModelAsync(removeFromCartModel);
             if (!validationResult.IsSuccessful)
@@ -88,7 +88,7 @@ namespace BLL.Services
                 return new ServiceResult()
                 {
                     IsSuccessful = false,
-                    Message = "No such product in cart"
+                    Message = "No such product in cart."
                 };
             }
             int itemQuantityInCart = cartItemEntity.Quantity;

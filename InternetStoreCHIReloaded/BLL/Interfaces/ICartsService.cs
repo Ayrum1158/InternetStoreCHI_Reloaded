@@ -9,6 +9,6 @@ namespace BLL.Interfaces
     public interface ICartsService
     {
         Task<ServiceResult> AddToUserCartAsync(int userId, AddToCartModel addToCartModel);
-        Task<ServiceResult> RemoveFromUserCart(int userId, RemoveFromCartModel removeFromCartModel);
+        Task<ServiceResult> RemoveFromUserCartAsync(int userId, RemoveFromCartModel removeFromCartModel);
     }
 }
