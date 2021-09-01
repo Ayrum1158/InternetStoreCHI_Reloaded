@@ -31,7 +31,7 @@ namespace API.Controllers
         public async Task<GenericResponse> MakeAnOrder()
         {
             int userId = GetUserId();
-            var result = await _ordersService.MakeAnOrder(userId);
+            var result = await _ordersService.MakeAnOrderAsync(userId);
             var response = _mapper.Map<GenericResponse>(result);
             return response;
         }

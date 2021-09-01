@@ -27,7 +27,7 @@ namespace BLL.Services
             _ordersRepository = ordersRepository;
         }
 
-        public async Task<ServiceResult> MakeAnOrder(int userId)// no user validation because we retrieve userId via JWT
+        public async Task<ServiceResult> MakeAnOrderAsync(int userId)// no user validation because we retrieve userId via JWT
         {
             bool isCartEmpty = await _cartsRepository.IsUserCartEmptyAsync(userId);
             if (isCartEmpty)// if no items in cart
@@ -62,10 +62,6 @@ namespace BLL.Services
             if(result.IsSuccessful)
             {
                 result.Message = "Order was completed!";
-            }
-            else
-            {
-                result.Message = "An error occured while processing order.";
             }
             return result;
         }
