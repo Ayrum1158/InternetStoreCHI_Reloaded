@@ -1,12 +1,12 @@
 IF NOT EXISTS (SELECT 1 FROM information_schema.tables where table_name = 'Company')
 CREATE TABLE Company (
-	Id INT NOT NULL PRIMARY KEY,
+	Id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	Name VARCHAR(100) NOT NULL
 );
 
 IF NOT EXISTS (SELECT 1 FROM information_schema.tables where table_name = 'Position')
 CREATE TABLE Position(
-	Id INT NOT NULL PRIMARY KEY,
+	Id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	Name VARCHAR(100) NOT NULL,
 	Description VARCHAR(100) NOT NULL,
 	RankPower FLOAT NOT NULL
@@ -14,7 +14,7 @@ CREATE TABLE Position(
 
 IF NOT EXISTS (SELECT 1 FROM information_schema.tables where table_name = 'Employee')
 CREATE TABLE Employee (
-	Id INT NOT NULL PRIMARY KEY,
+	Id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	FirstName VARCHAR(100) NOT NULL,
 	LastName VARCHAR(100) NOT NULL,
 	CompanyId INT NOT NULL FOREIGN KEY REFERENCES Company(Id),
@@ -25,7 +25,7 @@ CREATE TABLE Employee (
 IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE type = 'FN' AND name = 'IsSupervisorValid')
 BEGIN
 	 DECLARE @sql NVARCHAR(MAX);
-    SET @sql = N'
+    	EXEC ('
 	CREATE FUNCTION IsSupervisorValid(@employeeId INT, @possibleSupervisorId INT)
 	RETURNS BIT
 	BEGIN
@@ -55,8 +55,7 @@ BEGIN
 		IF (@employeeRank < @possibleSupervisorRank)
 			RETURN 1
 		RETURN 0
-	END';
-    EXEC sp_executesql @sql;
+	END')
 END
 
 IF NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
