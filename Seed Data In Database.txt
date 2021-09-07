@@ -1,0 +1,25 @@
+IF NOT EXISTS (SELECT 1 FROM Company WHERE Id = 1)
+INSERT INTO Company VALUES (1, 'Company1')
+IF NOT EXISTS (SELECT 1 FROM Company WHERE Id = 2)
+INSERT INTO Company VALUES (2, 'Company2')
+IF NOT EXISTS (SELECT 1 FROM Company WHERE Id = 3)
+INSERT INTO Company VALUES (3, 'Company3')
+
+IF NOT EXISTS (SELECT 1 FROM Position WHERE Id = 1)
+INSERT INTO Position VALUES (1, 'Director', 'Gets money doing stuff', 100)
+IF NOT EXISTS (SELECT 1 FROM Position WHERE Id = 2)
+INSERT INTO Position VALUES (2, 'Gym boss', 'Gets his 300 bucks', 50)
+IF NOT EXISTS (SELECT 1 FROM Position WHERE Id = 3)
+INSERT INTO Position VALUES (3, 'Office plankton', 'Gets eaten when unfortunate', 1)
+
+
+IF NOT EXISTS (SELECT 1 FROM Employee  WHERE Id = 1)
+INSERT INTO Employee VALUES (1, 'Chad', 'Rosinski', 1, NULL, 1)
+IF NOT EXISTS (SELECT 1 FROM Employee  WHERE Id = 2)
+INSERT INTO Employee VALUES (2, 'Jim', 'Boss', 1, NULL, 2)
+IF NOT EXISTS (SELECT 1 FROM Employee  WHERE Id = 3)
+INSERT INTO Employee VALUES (3, 'John', 'Doe', 1, NULL, 3)
+
+UPDATE Employee
+SET SupervisorId = 2
+WHERE Id = 3
