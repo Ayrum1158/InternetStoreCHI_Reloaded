@@ -37,3 +37,29 @@ BEGIN
 		WHERE Id = @EmployeeId
 	END')
 END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'DeleteEmployee')
+BEGIN
+	DECLARE @sql NVARCHAR(MAX);
+    	EXEC('
+	CREATE PROCEDURE DeleteEmployee
+	@EmployeeId INT
+	AS
+	BEGIN
+		DELETE FROM Employee
+			WHERE Id = @EmployeeId
+	END')
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'SearchEmployeeById')
+BEGIN
+	DECLARE @sql NVARCHAR(MAX);
+    EXEC('
+	CREATE PROCEDURE SearchEmployeeById
+	@EmployeeId INT
+	AS
+	BEGIN
+		SELECT * FROM Employee
+			WHERE Id = @EmployeeId
+	END')
+END
