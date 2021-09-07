@@ -32,11 +32,8 @@ namespace DAL.Repositories
         public async Task<DbResponse> RegisterUserAsync(NewUserDbModel newUser)
         {
             var userEntity = _mapper.Map<UserEntity>(newUser);
-
             var userCreateResult = await _userManager.CreateAsync(userEntity, newUser.Password);
-
             var response = new DbResponse();
-
             if (userCreateResult.Succeeded)
             {
                 userEntity.UserCart = new CartEntity() { UserId = userEntity.Id };

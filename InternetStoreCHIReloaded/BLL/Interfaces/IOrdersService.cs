@@ -8,6 +8,6 @@ namespace BLL.Interfaces
 {
     public interface IOrdersService
     {
-        Task<ServiceResult> MakeAnOrder(int userId);
+        Task<ServiceResult> MakeAnOrderAsync(int userId);
     }
 }

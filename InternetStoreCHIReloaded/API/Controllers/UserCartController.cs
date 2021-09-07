@@ -33,7 +33,7 @@ namespace API.Controllers
         {
             int userId = GetUserId();
             var atcModel = _mapper.Map<AddToCartModel>(atcViewModel);
-            var result = await _cartsService.AddToUserCart(userId, atcModel);
+            var result = await _cartsService.AddToUserCartAsync(userId, atcModel);
             var response = _mapper.Map<GenericResponse>(result);
             return response;
         }
@@ -44,7 +44,7 @@ namespace API.Controllers
         {
             int userId = GetUserId();
             var rfcModel = _mapper.Map<RemoveFromCartModel>(rfcViewModel);
-            var result = await _cartsService.RemoveFromUserCart(userId, rfcModel);
+            var result = await _cartsService.RemoveFromUserCartAsync(userId, rfcModel);
             var response = _mapper.Map<GenericResponse>(result);
             return response;
         }
