@@ -1,0 +1,66 @@
+IF NOT EXISTS (SELECT 1 FROM information_schema.tables where table_name = 'Company')
+CREATE TABLE Company (
+	Id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL
+);
+
+IF NOT EXISTS (SELECT 1 FROM information_schema.tables where table_name = 'Position')
+CREATE TABLE Position(
+	Id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL,
+	Description VARCHAR(100) NOT NULL,
+	RankPower FLOAT NOT NULL
+);
+
+IF NOT EXISTS (SELECT 1 FROM information_schema.tables where table_name = 'Employee')
+CREATE TABLE Employee (
+	Id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	FirstName VARCHAR(100) NOT NULL,
+	LastName VARCHAR(100) NOT NULL,
+	CompanyId INT NOT NULL FOREIGN KEY REFERENCES Company(Id),
+	SupervisorId INT FOREIGN KEY REFERENCES Employee(Id),
+	PositionId INT NOT NULL FOREIGN KEY REFERENCES Position(Id)
+);
+
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE type = 'FN' AND name = 'IsSupervisorValid')
+BEGIN
+	 DECLARE @sql NVARCHAR(MAX);
+    	EXEC ('
+	CREATE FUNCTION IsSupervisorValid(@employeeId INT, @possibleSupervisorId INT)
+	RETURNS BIT
+	BEGIN
+		--Returning 0 means false, 1 is true
+	
+		IF (@possibleSupervisorId IS NULL)
+			RETURN 1
+	
+		IF (@employeeId = @possibleSupervisorId)
+			RETURN 0
+	
+		DECLARE @employeeRank INT;
+		DECLARE @possibleSupervisorRank INT;
+		DECLARE @rankName VARCHAR(100);
+	
+		SELECT @rankName = Position.Name, @employeeRank = Position.RankPower FROM Employee
+			JOIN Position ON Employee.Id = Position.Id
+		WHERE Employee.Id = @employeeId
+	
+		IF (@rankName = ''Director'')
+			RETURN 0
+	
+		SELECT @possibleSupervisorRank=Position.RankPower  FROM Employee
+			JOIN Position ON Employee.Id = Position.Id
+		WHERE Employee.Id = @possibleSupervisorId
+	
+		IF (@employeeRank < @possibleSupervisorRank)
+			RETURN 1
+		RETURN 0
+	END')
+END
+
+IF NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+	WHERE CONSTRAINT_NAME='SupervisorCheck'
+		AND TABLE_NAME = 'Employee')
+ALTER TABLE [TestDb].[dbo].[Employee]
+ADD CONSTRAINT SupervisorCheck
+CHECK (dbo.IsSupervisorValid(Id, SupervisorId) = 1)

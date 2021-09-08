@@ -1,0 +1,65 @@
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'AddEmployee')
+BEGIN
+	DECLARE @sql NVARCHAR(MAX);
+    	EXEC('
+	CREATE PROCEDURE AddEmployee
+	@FirstName VARCHAR (100),
+	@LastName VARCHAR (100),
+	@CompanyId INT,
+	@PositionId INT
+	AS
+	BEGIN
+		INSERT INTO Employee (FirstName, LastName, CompanyId, PositionId)
+			VALUES (@FirstName, @LastName, @CompanyId, @PositionId)
+	END')
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'UpdateEmployee')
+BEGIN
+	DECLARE @sql NVARCHAR(MAX);
+    EXEC('
+	CREATE PROCEDURE UpdateEmployee
+	@EmployeeId INT,
+	@FirstName VARCHAR (100),
+	@LastName VARCHAR (100),
+	@CompanyId INT,
+	@SupervisorId INT,
+	@PositionId INT
+	AS
+	BEGIN
+		Update Employee
+		SET
+			FirstName = @FirstName,
+			LastName = @LastName,
+			CompanyId = @CompanyId,
+			SupervisorId = @SupervisorId,
+			PositionId = @PositionId
+		WHERE Id = @EmployeeId
+	END')
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'DeleteEmployee')
+BEGIN
+	DECLARE @sql NVARCHAR(MAX);
+    	EXEC('
+	CREATE PROCEDURE DeleteEmployee
+	@EmployeeId INT
+	AS
+	BEGIN
+		DELETE FROM Employee
+			WHERE Id = @EmployeeId
+	END')
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'SearchEmployeeById')
+BEGIN
+	DECLARE @sql NVARCHAR(MAX);
+    EXEC('
+	CREATE PROCEDURE SearchEmployeeById
+	@EmployeeId INT
+	AS
+	BEGIN
+		SELECT * FROM Employee
+			WHERE Id = @EmployeeId
+	END')
+END
